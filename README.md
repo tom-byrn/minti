@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Minti - Personal Finance Dashboard
 
-## Getting Started
+A beautiful, nature-inspired personal finance dashboard built with Next.js, featuring Plaid integration for real-time bank account data and Supabase authentication.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **User Authentication** - Secure password-based authentication with Supabase
+- **Bank Account Integration** - Connect your bank accounts via Plaid
+- **Real-time Balance Tracking** - View your account balances in real-time
+- **Transaction History** - See recent transactions from your connected accounts
+- **Financial Overview** - Visualize income and spending trends
+- **Studio Ghibli Theme** - Soft, nature-inspired design with pastel green colors
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup Guide
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Supabase Account**
+   - Sign up at [https://supabase.com](https://supabase.com)
+   - Create a new project
+   - Get your API credentials from Project Settings > API
 
-## Learn More
+2. **Plaid Account** (Optional, for bank integration)
+   - Sign up at [https://dashboard.plaid.com/signup](https://dashboard.plaid.com/signup)
+   - Get your API credentials from [Team Keys](https://dashboard.plaid.com/team/keys)
 
-To learn more about Next.js, take a look at the following resources:
+### Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Configure environment variables**
+   ```bash
+   cp .env.local.example .env.local
+   ```
 
-## Deploy on Vercel
+   Then update `.env.local` with your credentials:
+   ```env
+   # Supabase (Required)
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   # Plaid (Optional)
+   PLAID_CLIENT_ID=your_client_id_here
+   PLAID_SECRET=your_secret_here
+   PLAID_ENV=sandbox
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. **Set up Supabase Authentication**
+
+   In your Supabase project dashboard:
+   - Go to Authentication > URL Configuration
+   - Add `http://localhost:3000/auth/callback` to the Redirect URLs
+
+4. **Start the development server**
+   ```bash
+   pnpm dev
+   ```
+
+5. **Open the app**
+
+   Visit [http://localhost:3000](http://localhost:3000) and create an account!
+
+## Usage
+
+### Authentication
+
+- **Sign Up**: Create a new account at `/signup`
+- **Sign In**: Log in to your account at `/login`
+- **Sign Out**: Click your avatar in the header and select "Log out"
+
+### Connecting Bank Accounts
+
+1. Once logged in, click "Connect Bank Account"
+2. In sandbox mode, use test credentials: `user_good` / `pass_good`
+3. Your account balances will appear automatically
+
+## Tech Stack
+
+- Next.js 16 (App Router)
+- Supabase Auth
+- Plaid
+- Tailwind CSS
+- shadcn/ui
+- Recharts

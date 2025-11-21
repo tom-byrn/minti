@@ -66,10 +66,15 @@ export function PlaidLink({ onSuccess }: PlaidLinkProps) {
   const { open, ready } = usePlaidLink(config)
 
   return (
-    <Button onClick={() => open()} disabled={!ready || loading} size="lg">
+    <Button
+      onClick={() => open()}
+      disabled={!ready || loading}
+      size="lg"
+      className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all rounded-xl font-medium"
+    >
       {loading ? (
         <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
           Connecting...
         </>
       ) : (

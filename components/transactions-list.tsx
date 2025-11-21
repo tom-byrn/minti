@@ -64,14 +64,14 @@ const transactions = [
 
 export function TransactionsList() {
   return (
-    <Card>
+    <Card className="border-border/50 bg-card/80 backdrop-blur shadow-sm">
       <CardHeader>
-        <CardTitle>Recent Transactions</CardTitle>
-        <CardDescription>Your latest account activity and transactions</CardDescription>
+        <CardTitle className="font-serif text-2xl">Recent Transactions</CardTitle>
+        <CardDescription className="text-base">Your latest account activity and transactions</CardDescription>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">
-          <div className="space-y-4">
+          <div className="space-y-3">
             {transactions.map((transaction) => {
               const Icon = transaction.icon
               const isIncome = transaction.amount > 0
@@ -79,34 +79,33 @@ export function TransactionsList() {
               return (
                 <div
                   key={transaction.id}
-                  className="flex items-center justify-between rounded-lg border border-border p-4 transition-colors hover:bg-muted/50"
+                  className="flex items-center justify-between rounded-xl border border-border/50 bg-card/50 p-4 transition-all hover:bg-card hover:shadow-md hover:border-border"
                 >
                   <div className="flex items-center gap-4">
                     <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                        isIncome ? "bg-accent/10" : "bg-muted"
+                      className={`flex h-12 w-12 items-center justify-center rounded-xl ${
+                        isIncome ? "bg-primary/10" : "bg-muted/50"
                       }`}
                     >
-                      <Icon className={`h-5 w-5 ${isIncome ? "text-accent" : "text-muted-foreground"}`} />
+                      <Icon className={`h-6 w-6 ${isIncome ? "text-primary" : "text-muted-foreground"}`} />
                     </div>
                     <div>
-                      <p className="font-medium">{transaction.name}</p>
-                      <div className="flex items-center gap-2">
+                      <p className="font-medium text-foreground text-base">{transaction.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
                         <p className="text-sm text-muted-foreground">{transaction.category}</p>
-                        <span className="text-muted-foreground">•</span>
+                        <span className="text-muted-foreground/50">•</span>
                         <p className="text-sm text-muted-foreground">{transaction.date}</p>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     {transaction.status === "pending" && (
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-sm border-border/50">
                         Pending
                       </Badge>
                     )}
-                    <p className={`text-lg font-semibold ${isIncome ? "text-accent" : "text-foreground"}`}>
-                      {isIncome ? "+" : ""}
-                      {transaction.amount.toFixed(2)}
+                    <p className={`text-xl font-semibold font-serif ${isIncome ? "text-primary" : "text-foreground"}`}>
+                      {isIncome ? "+" : ""}${Math.abs(transaction.amount).toFixed(2)}
                     </p>
                   </div>
                 </div>

@@ -61,7 +61,7 @@ export function AIAssistant() {
   }
 
   return (
-    <Card className="flex h-[calc(100vh-8rem)] flex-col lg:sticky lg:top-24">
+    <Card className="flex h-[calc(100vh-8rem)] flex-col lg:sticky lg:top-24 bg-gradient-to-br from-background via-primary/5 to-accent/10 border-border/50">
       <CardHeader className="border-b border-border">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">

@@ -14,50 +14,54 @@ const data = [
 ]
 
 export function SpendingChart() {
-  const incomeColor = "#5eead4" // Pastel teal
-  const spendingColor = "#6ee7b7" // Pastel mint green
+  const incomeColor = "#6ee7b7" // Mint green
+  const spendingColor = "#4ade80" // Vibrant green
 
   return (
-    <Card>
+    <Card className="border-border/50 bg-card/80 backdrop-blur shadow-sm">
       <CardHeader>
-        <CardTitle>Financial Overview</CardTitle>
-        <CardDescription>Your income and spending trends over the last 7 months</CardDescription>
+        <CardTitle className="font-serif text-2xl">Financial Overview</CardTitle>
+        <CardDescription className="text-base">Your income and spending trends over the last 7 months</CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={320}>
           <AreaChart data={data}>
             <defs>
               <linearGradient id="income" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={incomeColor} stopOpacity={0.4} />
+                <stop offset="5%" stopColor={incomeColor} stopOpacity={0.5} />
                 <stop offset="95%" stopColor={incomeColor} stopOpacity={0.05} />
               </linearGradient>
               <linearGradient id="spending" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={spendingColor} stopOpacity={0.4} />
+                <stop offset="5%" stopColor={spendingColor} stopOpacity={0.5} />
                 <stop offset="95%" stopColor={spendingColor} stopOpacity={0.05} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis dataKey="month" className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))" }} />
-            <YAxis className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))" }} />
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+            <XAxis dataKey="month" className="text-sm" tick={{ fill: "hsl(var(--muted-foreground))" }} />
+            <YAxis className="text-sm" tick={{ fill: "hsl(var(--muted-foreground))" }} />
             <Tooltip
               contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "8px",
+                backgroundColor: "rgba(220, 252, 231, 0.95)",
+                color: "#1f2937",
+                border: "1px solid rgba(74, 222, 128, 0.3)",
+                borderRadius: "12px",
+                fontSize: "14px",
+                padding: "8px 12px",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
               }}
             />
-            <Area type="monotone" dataKey="income" stroke={incomeColor} strokeWidth={2} fill="url(#income)" />
-            <Area type="monotone" dataKey="spending" stroke={spendingColor} strokeWidth={2} fill="url(#spending)" />
+            <Area type="monotone" dataKey="income" stroke={incomeColor} strokeWidth={2.5} fill="url(#income)" />
+            <Area type="monotone" dataKey="spending" stroke={spendingColor} strokeWidth={2.5} fill="url(#spending)" />
           </AreaChart>
         </ResponsiveContainer>
-        <div className="mt-4 flex items-center justify-center gap-6 text-sm">
+        <div className="mt-6 flex items-center justify-center gap-8 text-base">
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: incomeColor }} />
-            <span className="text-muted-foreground">Income</span>
+            <div className="h-3 w-3 rounded-full shadow-sm" style={{ backgroundColor: incomeColor }} />
+            <span className="text-muted-foreground font-medium">Income</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: spendingColor }} />
-            <span className="text-muted-foreground">Spending</span>
+            <div className="h-3 w-3 rounded-full shadow-sm" style={{ backgroundColor: spendingColor }} />
+            <span className="text-muted-foreground font-medium">Spending</span>
           </div>
         </div>
       </CardContent>

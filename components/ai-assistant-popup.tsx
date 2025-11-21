@@ -74,7 +74,7 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
 
       {/* Popup */}
       <div className="fixed bottom-4 right-4 z-50 w-[400px] max-w-[calc(100vw-2rem)]">
-        <Card className="flex h-[600px] max-h-[calc(100vh-2rem)] flex-col shadow-2xl">
+        <Card className="flex h-[600px] max-h-[calc(100vh-2rem)] flex-col shadow-2xl bg-gradient-to-br from-background via-primary/5 to-accent/10 border-border/50">
           <CardHeader className="border-b border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
