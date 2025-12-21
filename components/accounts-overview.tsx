@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ArrowDownRight, ArrowUpRight, CreditCard, DollarSign, TrendingUp, Wallet, Loader2 } from "lucide-react"
+import { AlertCircle, ArrowDownRight, ArrowUpRight, CreditCard, DollarSign, TrendingUp, Wallet, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlaidLink } from "@/components/plaid-link"
 
@@ -18,10 +18,12 @@ export function AccountsOverview() {
   const [accounts, setAccounts] = useState<Account[]>([])
   const [loading, setLoading] = useState(true)
   const [hasAccessToken, setHasAccessToken] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchBalance = async (accessToken: string) => {
     try {
       setLoading(true)
+      setError(null)
       const response = await fetch("/api/plaid/balance", {
         method: "POST",
         headers: {
@@ -31,6 +33,13 @@ export function AccountsOverview() {
       })
 
       const data = await response.json()
+
+      if (!response.ok) {
+        localStorage.removeItem("plaid_access_token")
+        setError("Your bank connection has expired. Please reconnect your account.")
+        setHasAccessToken(false)
+        return
+      }
 
       if (data.accounts) {
         const formattedAccounts: Account[] = [
@@ -56,8 +65,11 @@ export function AccountsOverview() {
 
         setAccounts(formattedAccounts)
       }
-    } catch (error) {
-      console.error("Error fetching balance:", error)
+    } catch (err) {
+      console.error("Error fetching balance:", err)
+      localStorage.removeItem("plaid_access_token")
+      setError("Failed to connect to your bank. Please try again.")
+      setHasAccessToken(false)
     } finally {
       setLoading(false)
     }
@@ -74,6 +86,7 @@ export function AccountsOverview() {
   }, [])
 
   const handlePlaidSuccess = (accessToken: string) => {
+    setError(null)
     setHasAccessToken(true)
     fetchBalance(accessToken)
   }
@@ -83,14 +96,22 @@ export function AccountsOverview() {
       <div className="flex flex-col items-center justify-center py-16 px-4">
         <Card className="max-w-md w-full border-border/50 shadow-lg bg-card/80 backdrop-blur">
           <CardHeader className="space-y-3">
-            <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Wallet className="h-8 w-8 text-primary" />
-            </div>
-            <CardTitle className="text-center font-serif text-3xl">Connect Your Bank Account</CardTitle>
+            {error ? (
+              <div className="mx-auto h-16 w-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
+                <AlertCircle className="h-8 w-8 text-destructive" />
+              </div>
+            ) : (
+              <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Wallet className="h-8 w-8 text-primary" />
+              </div>
+            )}
+            <CardTitle className="text-center font-serif text-3xl">
+              {error ? "Reconnect Your Bank" : "Connect Your Bank Account"}
+            </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-6">
             <p className="text-center text-base text-muted-foreground leading-relaxed">
-              Connect your bank account with Plaid to view your real-time balance and transactions in one beautiful place.
+              {error || "Connect your bank account with Plaid to view your real-time balance and transactions in one beautiful place."}
             </p>
             <PlaidLink onSuccess={handlePlaidSuccess} />
           </CardContent>

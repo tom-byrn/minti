@@ -8,9 +8,12 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Minti - Finance App",
+  title: "Minti",
   description: "Your AI-powered financial assistant",
   generator: "v0.app",
+  icons: {
+    icon: "/icon.svg",
+  },
 }
 
 export default function RootLayout({

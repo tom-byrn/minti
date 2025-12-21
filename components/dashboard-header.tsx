@@ -14,9 +14,18 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAIPopup } from "./ai-popup-provider"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+
+const navLinks = [
+  { href: "/", label: "Dashboard" },
+  { href: "/accounts", label: "Accounts" },
+  { href: "/analytics", label: "Analytics" },
+  { href: "/ai", label: "AI Assistant" },
+]
 
 export function DashboardHeader() {
   const { togglePopup } = useAIPopup()
+  const pathname = usePathname()
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/40 bg-card/80 backdrop-blur-md supports-[backdrop-filter]:bg-card/50 shadow-sm">
@@ -41,27 +50,22 @@ export function DashboardHeader() {
           </Link>
 
           <nav className="hidden items-center gap-6 md:flex">
-            <Link href="/" className="text-base font-medium text-primary transition-colors hover:text-primary/80 relative after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-primary after:rounded-full">
-              Dashboard
-            </Link>
-            <Link
-              href="/accounts"
-              className="text-base font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-              Accounts
-            </Link>
-            <Link
-              href="/analytics"
-              className="text-base font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-              Analytics
-            </Link>
-            <Link
-              href="/ai"
-              className="text-base font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-              AI Assistant
-            </Link>
+            {navLinks.map((link) => {
+              const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`text-base font-medium transition-colors hover:text-primary/80 relative ${
+                    isActive
+                      ? "text-primary after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-primary after:rounded-full"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              )
+            })}
           </nav>
         </div>
 
@@ -76,15 +80,17 @@ export function DashboardHeader() {
             <MessageSquare className="h-5 w-5" />
           </Button>
 
-          <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary rounded-xl">
-            <Settings className="h-5 w-5" />
-          </Button>
+          <Link href="/settings">
+            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary rounded-xl">
+              <Settings className="h-5 w-5" />
+            </Button>
+          </Link>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="/placeholder.svg?height=36&width=36" alt="User" />
+                  <AvatarImage src="" alt="User" />
                   <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
               </Button>

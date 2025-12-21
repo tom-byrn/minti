@@ -1,68 +1,203 @@
 "use client"
 
-import { ArrowDownLeft, Coffee, Home, ShoppingBag, Smartphone, Zap } from "lucide-react"
+import { useEffect, useState } from "react"
+import {
+  ArrowDownLeft,
+  Coffee,
+  Home,
+  ShoppingBag,
+  Smartphone,
+  Zap,
+  Car,
+  Plane,
+  Utensils,
+  Heart,
+  Gamepad2,
+  GraduationCap,
+  Banknote,
+  CreditCard,
+  Loader2,
+  AlertCircle,
+} from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-const transactions = [
-  {
-    id: 1,
-    name: "Starbucks Coffee",
-    category: "Food & Dining",
-    amount: -12.5,
-    date: "2 hours ago",
-    icon: Coffee,
-    status: "completed",
-  },
-  {
-    id: 2,
-    name: "Salary Deposit",
-    category: "Income",
-    amount: 5420.0,
-    date: "Today",
-    icon: ArrowDownLeft,
-    status: "completed",
-  },
-  {
-    id: 3,
-    name: "Amazon Purchase",
-    category: "Shopping",
-    amount: -89.99,
-    date: "Yesterday",
-    icon: ShoppingBag,
-    status: "completed",
-  },
-  {
-    id: 4,
-    name: "Electric Bill",
-    category: "Utilities",
-    amount: -145.3,
-    date: "2 days ago",
-    icon: Zap,
-    status: "completed",
-  },
-  {
-    id: 5,
-    name: "Rent Payment",
-    category: "Housing",
-    amount: -2100.0,
-    date: "3 days ago",
-    icon: Home,
-    status: "completed",
-  },
-  {
-    id: 6,
-    name: "Apple Store",
-    category: "Electronics",
-    amount: -1299.0,
-    date: "5 days ago",
-    icon: Smartphone,
-    status: "pending",
-  },
-]
+interface PlaidTransaction {
+  transaction_id: string
+  name: string
+  amount: number
+  date: string
+  category: string[] | null
+  pending: boolean
+  merchant_name: string | null
+  personal_finance_category?: {
+    primary: string
+    detailed: string
+  } | null
+}
+
+interface Transaction {
+  id: string
+  name: string
+  category: string
+  amount: number
+  date: string
+  icon: any
+  status: "completed" | "pending"
+}
+
+const categoryIcons: Record<string, any> = {
+  "FOOD_AND_DRINK": Utensils,
+  "TRANSPORTATION": Car,
+  "TRAVEL": Plane,
+  "SHOPPING": ShoppingBag,
+  "ENTERTAINMENT": Gamepad2,
+  "RENT_AND_UTILITIES": Home,
+  "MEDICAL": Heart,
+  "EDUCATION": GraduationCap,
+  "TRANSFER_IN": ArrowDownLeft,
+  "TRANSFER_OUT": Banknote,
+  "INCOME": ArrowDownLeft,
+  "LOAN_PAYMENTS": CreditCard,
+  "GENERAL_MERCHANDISE": ShoppingBag,
+  "PERSONAL_CARE": Heart,
+  "GENERAL_SERVICES": Zap,
+  "GOVERNMENT_AND_NON_PROFIT": Home,
+  "HOME_IMPROVEMENT": Home,
+  "BANK_FEES": CreditCard,
+}
+
+function getCategoryIcon(category: string | null | undefined): any {
+  if (!category) return CreditCard
+  const upperCategory = category.toUpperCase()
+  return categoryIcons[upperCategory] || CreditCard
+}
+
+function formatCategory(category: string | null | undefined): string {
+  if (!category) return "Other"
+  return category
+    .split("_")
+    .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+    .join(" ")
+}
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffTime = now.getTime() - date.getTime()
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+
+  if (diffDays === 0) return "Today"
+  if (diffDays === 1) return "Yesterday"
+  if (diffDays < 7) return `${diffDays} days ago`
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+}
 
 export function TransactionsList() {
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      const accessToken = localStorage.getItem("plaid_access_token")
+      if (!accessToken) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch("/api/plaid/transactions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ access_token: accessToken }),
+        })
+
+        if (response.status === 202) {
+          setError("Transactions are being synced. Please check back in a moment.")
+          setLoading(false)
+          return
+        }
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch transactions")
+        }
+
+        const data = await response.json()
+
+        const formattedTransactions: Transaction[] = data.transactions.map((t: PlaidTransaction) => ({
+          id: t.transaction_id,
+          name: t.merchant_name || t.name,
+          category: formatCategory(t.personal_finance_category?.primary || t.category?.[0]),
+          amount: -t.amount, // Plaid returns positive for debits, we want negative
+          date: formatDate(t.date),
+          icon: getCategoryIcon(t.personal_finance_category?.primary || t.category?.[0]),
+          status: t.pending ? "pending" : "completed",
+        }))
+
+        setTransactions(formattedTransactions)
+      } catch (err) {
+        console.error("Error fetching transactions:", err)
+        setError("Failed to load transactions")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTransactions()
+  }, [])
+
+  if (loading) {
+    return (
+      <Card className="border-border/50 bg-card/80 backdrop-blur shadow-sm">
+        <CardHeader>
+          <CardTitle className="font-serif text-2xl">Recent Transactions</CardTitle>
+          <CardDescription className="text-base">Your latest account activity and transactions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card className="border-border/50 bg-card/80 backdrop-blur shadow-sm">
+        <CardHeader>
+          <CardTitle className="font-serif text-2xl">Recent Transactions</CardTitle>
+          <CardDescription className="text-base">Your latest account activity and transactions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-12 gap-3">
+            <AlertCircle className="h-8 w-8 text-muted-foreground" />
+            <p className="text-muted-foreground">{error}</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (transactions.length === 0) {
+    return (
+      <Card className="border-border/50 bg-card/80 backdrop-blur shadow-sm">
+        <CardHeader>
+          <CardTitle className="font-serif text-2xl">Recent Transactions</CardTitle>
+          <CardDescription className="text-base">Your latest account activity and transactions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-12 gap-3">
+            <CreditCard className="h-8 w-8 text-muted-foreground" />
+            <p className="text-muted-foreground">No transactions found</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card className="border-border/50 bg-card/80 backdrop-blur shadow-sm">
       <CardHeader>
@@ -105,7 +240,7 @@ export function TransactionsList() {
                       </Badge>
                     )}
                     <p className={`text-xl font-semibold font-serif ${isIncome ? "text-primary" : "text-foreground"}`}>
-                      {isIncome ? "+" : ""}${Math.abs(transaction.amount).toFixed(2)}
+                      {isIncome ? "+" : "-"}${Math.abs(transaction.amount).toFixed(2)}
                     </p>
                   </div>
                 </div>
