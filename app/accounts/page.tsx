@@ -384,7 +384,7 @@ export default function AccountsPage() {
                       <CardDescription className="text-base">Total Liabilities</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-3xl font-bold font-serif text-destructive">
+                      <p className="text-3xl font-bold font-serif text-destructive/70">
                         ${totalLiabilities.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </p>
                     </CardContent>
@@ -527,22 +527,6 @@ export default function AccountsPage() {
                   </CardContent>
                 </Card>
 
-                {/* Disconnect Section */}
-                <Card className="border-destructive/30 bg-destructive/5">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium">Disconnect All Accounts</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Remove your bank connection from Minti
-                        </p>
-                      </div>
-                      <Button variant="destructive" onClick={handleDisconnect}>
-                        Disconnect
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
               </>
             )}
           </div>
