@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { AlertCircle, ArrowDownRight, ArrowUpRight, CreditCard, DollarSign, TrendingUp, Wallet, Loader2 } from "lucide-react"
+import { AlertCircle, CreditCard, DollarSign, TrendingUp, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlaidLink } from "@/components/plaid-link"
 
@@ -49,7 +49,7 @@ export function AccountsOverview() {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}`,
-            icon: Wallet,
+            icon: DollarSign,
             color: "text-primary",
           },
           ...data.accounts.map((account: any) => ({
@@ -102,7 +102,7 @@ export function AccountsOverview() {
               </div>
             ) : (
               <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Wallet className="h-8 w-8 text-primary" />
+                <DollarSign className="h-8 w-8 text-primary" />
               </div>
             )}
             <CardTitle className="text-center font-serif text-3xl">
@@ -128,37 +128,63 @@ export function AccountsOverview() {
     )
   }
 
+  const totalBalance = accounts[0]
+  const individualAccounts = accounts.slice(1)
+
   return (
-    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      {accounts.map((account) => {
-        const Icon = account.icon
-        return (
-          <Card key={account.name} className="transition-all hover:shadow-lg hover:-translate-y-1 border-border/50 bg-card/80 backdrop-blur">
-            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
-              <CardTitle className="text-base font-medium text-muted-foreground leading-tight min-h-[2.5rem] flex items-center">
-                {account.name}
-              </CardTitle>
-              <div className={`h-10 w-10 rounded-xl ${account.color.replace('text-', 'bg-')}/10 flex items-center justify-center flex-shrink-0`}>
-                <Icon className={`h-5 w-5 ${account.color}`} />
+    <div className="space-y-6">
+      {/* Hero Total Balance Card */}
+      {totalBalance && (
+        <Card className="border-border/50 bg-gradient-to-br from-card/90 to-card/70 backdrop-blur shadow-xl">
+          <CardContent className="pt-8 pb-8">
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                Total Balance
+              </p>
+              <div className="text-6xl font-bold font-serif text-foreground">
+                {totalBalance.amount}
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-bold text-balance font-serif">{account.amount}</div>
-              {account.change && (
-                <div className="mt-2 flex items-center gap-1.5 text-sm flex-wrap">
-                  {account.trend === "up" ? (
-                    <ArrowUpRight className="h-4 w-4 text-accent flex-shrink-0" />
-                  ) : (
-                    <ArrowDownRight className="h-4 w-4 text-destructive flex-shrink-0" />
-                  )}
-                  <span className={account.trend === "up" ? "text-accent font-medium" : "text-destructive font-medium"}>{account.change}</span>
-                  <span className="text-muted-foreground">from last month</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )
-      })}
+              <p className="text-sm text-muted-foreground">
+                Across {individualAccounts.length} {individualAccounts.length === 1 ? 'account' : 'accounts'}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Individual Accounts List */}
+      {individualAccounts.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-foreground">Your Accounts</h3>
+          <div className="space-y-2">
+            {individualAccounts.map((account) => {
+              const Icon = account.icon
+              return (
+                <Card key={account.name} className="transition-all hover:shadow-md hover:border-primary/20 border-border/50 bg-card/60 backdrop-blur">
+                  <CardContent className="py-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Icon className="h-8 w-8 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">{account.name}</p>
+                          <p className="text-xs text-muted-foreground capitalize">
+                            {account.icon === CreditCard ? 'Credit' : account.icon === TrendingUp ? 'Savings' : 'Checking'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold font-serif text-foreground">{account.amount}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

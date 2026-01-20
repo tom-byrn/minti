@@ -70,16 +70,16 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 z-40" onClick={onClose} />
 
       {/* Popup */}
       <div className="fixed bottom-4 right-4 z-50 w-[400px] max-w-[calc(100vw-2rem)]">
-        <Card className="flex h-[600px] max-h-[calc(100vh-2rem)] flex-col shadow-2xl bg-gradient-to-br from-background via-primary/5 to-accent/10 border-border/50">
+        <Card className="flex h-[600px] max-h-[calc(100vh-2rem)] flex-col shadow-2xl bg-background border-border/50">
           <CardHeader className="border-b border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-                  <Sparkles className="h-4 w-4 text-primary-foreground" />
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+                  <Sparkles className="h-8 w-8 text-primary" />
                 </div>
                 <div>
                   <CardTitle className="text-base">AI Financial Assistant</CardTitle>
@@ -102,8 +102,8 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                   >
                     {message.role === "assistant" && (
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          <Bot className="h-4 w-4" />
+                        <AvatarFallback className="bg-primary/10">
+                          <Bot className="h-4 w-4 text-primary" />
                         </AvatarFallback>
                       </Avatar>
                     )}
@@ -124,8 +124,8 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                 {isLoading && (
                   <div className="flex gap-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-primary text-primary-foreground">
-                        <Bot className="h-4 w-4" />
+                      <AvatarFallback className="bg-primary/10">
+                        <Bot className="h-4 w-4 text-primary" />
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex items-center gap-1 rounded-lg bg-muted px-4 py-2">

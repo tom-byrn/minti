@@ -503,10 +503,8 @@ export default function TransactionsPage() {
                                 </TableCell>
                                 <TableCell>
                                   <div className="flex items-center gap-3">
-                                    <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${
-                                      isIncome ? "bg-primary/10" : "bg-muted/50"
-                                    }`}>
-                                      <Icon className={`h-4 w-4 ${isIncome ? "text-primary" : "text-muted-foreground"}`} />
+                                    <div className="h-16 w-16 rounded-2xl flex items-center justify-center shrink-0 bg-primary/10">
+                                      <Icon className="h-8 w-8 text-primary" />
                                     </div>
                                     <span className="font-medium">
                                       {transaction.merchant_name || transaction.name}

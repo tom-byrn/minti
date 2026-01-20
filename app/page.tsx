@@ -16,6 +16,15 @@ export default async function DashboardPage() {
     return redirect('/login')
   }
 
+  // Fetch user profile
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("first_name")
+    .eq("id", user.id)
+    .single()
+
+  const displayName = profile?.first_name || user.email?.split('@')[0] || 'there'
+
   return (
     <div className="relative min-h-screen bg-background">
       <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:28px_48px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
@@ -24,7 +33,7 @@ export default async function DashboardPage() {
         <main className="container mx-auto px-4 py-8 lg:px-8">
           <div className="space-y-8">
             <div className="space-y-2">
-              <h1 className="text-4xl font-serif font-semibold text-foreground">Welcome back, {user.email?.split('@')[0]}</h1>
+              <h1 className="text-4xl font-serif font-semibold text-foreground">Welcome back, {displayName}</h1>
               <p className="text-lg text-muted-foreground">Here's your financial overview</p>
             </div>
             <AccountsOverview />

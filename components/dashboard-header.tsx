@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Menu, Search, Settings, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,19 +16,60 @@ import {
 import { useAIPopup } from "./ai-popup-provider"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { settingsNavItems } from "@/lib/settings-config"
+import { createClient } from "@/lib/supabase/client"
+import type { UserProfile } from "@/lib/database.types"
 
 const navLinks = [
   { href: "/", label: "Dashboard" },
   { href: "/accounts", label: "Accounts" },
+  { href: "/analytics", label: "Analytics" },
   { href: "/ai", label: "AI Assistant" },
 ]
 
 export function DashboardHeader() {
   const { togglePopup } = useAIPopup()
   const pathname = usePathname()
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [email, setEmail] = useState("")
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (user) {
+        setEmail(user.email || "")
+        const { data: profile } = await supabase
+          .from("user_profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single()
+
+        if (profile) {
+          setProfile(profile)
+        }
+      }
+    }
+
+    fetchProfile()
+  }, [])
+
+  const getInitials = () => {
+    if (profile?.first_name && profile?.last_name) {
+      return `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase()
+    }
+    if (profile?.first_name) {
+      return profile.first_name[0].toUpperCase()
+    }
+    if (email) {
+      return email[0].toUpperCase()
+    }
+    return "U"
+  }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/40 bg-card/80 backdrop-blur-md supports-[backdrop-filter]:bg-card/50 shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-border/40 bg-card shadow-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
         {/* Logo and Navigation */}
         <div className="flex items-center gap-6">
@@ -84,17 +126,25 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="" alt="User" />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarImage src={profile?.avatar_url || ""} alt="User" />
+                  <AvatarFallback className="bg-primary/10 text-primary">{getInitials()}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              {settingsNavItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <DropdownMenuItem key={item.href} asChild>
+                    <Link href={item.href} className="flex items-center gap-2">
+                      <Icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+                )
+              })}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <form action="/auth/signout" method="post">

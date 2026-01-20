@@ -409,8 +409,8 @@ export default function AccountsPage() {
                     <div key={group.type} className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                            <GroupIcon className="h-5 w-5 text-primary" />
+                          <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                            <GroupIcon className="h-8 w-8 text-primary" />
                           </div>
                           <div>
                             <h2 className="text-xl font-serif font-semibold">{group.label}</h2>
@@ -441,10 +441,10 @@ export default function AccountsPage() {
                               <CardContent className="pt-6">
                                 <div className="flex items-start justify-between mb-4">
                                   <div className="flex items-center gap-3">
-                                    <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${
+                                    <div className={`h-16 w-16 rounded-2xl flex items-center justify-center ${
                                       isCredit ? "bg-destructive/10" : "bg-primary/10"
                                     }`}>
-                                      <AccountIcon className={`h-6 w-6 ${isCredit ? "text-destructive" : "text-primary"}`} />
+                                      <AccountIcon className={`h-8 w-8 ${isCredit ? "text-destructive" : "text-primary"}`} />
                                     </div>
                                     <div>
                                       <p className="font-medium text-foreground">{account.name}</p>
@@ -517,8 +517,8 @@ export default function AccountsPage() {
                   onClick={() => setShowAddAccount(true)}
                 >
                   <CardContent className="flex flex-col items-center justify-center py-8 gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-                      <Plus className="h-6 w-6 text-muted-foreground" />
+                    <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                      <Plus className="h-8 w-8 text-primary" />
                     </div>
                     <div className="text-center">
                       <p className="font-medium text-muted-foreground">Add Another Account</p>
@@ -608,10 +608,8 @@ export default function AccountsPage() {
                             className="flex items-center justify-between rounded-lg border border-border/50 p-3"
                           >
                             <div className="flex items-center gap-3">
-                              <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                                isIncome ? "bg-primary/10" : "bg-muted/50"
-                              }`}>
-                                <Icon className={`h-5 w-5 ${isIncome ? "text-primary" : "text-muted-foreground"}`} />
+                              <div className="h-16 w-16 rounded-2xl flex items-center justify-center bg-primary/10">
+                                <Icon className="h-8 w-8 text-primary" />
                               </div>
                               <div>
                                 <p className="font-medium text-sm">{transaction.merchant_name || transaction.name}</p>

@@ -217,12 +217,8 @@ export function TransactionsList() {
                   className="flex items-center justify-between rounded-xl border border-border/50 bg-card/50 p-4 transition-all hover:bg-card hover:shadow-md hover:border-border"
                 >
                   <div className="flex items-center gap-4">
-                    <div
-                      className={`flex h-12 w-12 items-center justify-center rounded-xl ${
-                        isIncome ? "bg-primary/10" : "bg-muted/50"
-                      }`}
-                    >
-                      <Icon className={`h-6 w-6 ${isIncome ? "text-primary" : "text-muted-foreground"}`} />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+                      <Icon className="h-8 w-8 text-primary" />
                     </div>
                     <div>
                       <p className="font-medium text-foreground text-base">{transaction.name}</p>

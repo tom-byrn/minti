@@ -79,8 +79,8 @@ export default function AIPage() {
           <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col">
             {/* Header */}
             <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary">
-                <Sparkles className="h-6 w-6 text-primary-foreground" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+                <Sparkles className="h-8 w-8 text-primary" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold">AI Financial Assistant</h1>
@@ -99,8 +99,8 @@ export default function AIPage() {
                     >
                       {message.role === "assistant" && (
                         <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-primary text-primary-foreground">
-                            <Bot className="h-5 w-5" />
+                          <AvatarFallback className="bg-primary/10">
+                            <Bot className="h-5 w-5 text-primary" />
                           </AvatarFallback>
                         </Avatar>
                       )}
@@ -121,8 +121,8 @@ export default function AIPage() {
                   {isLoading && (
                     <div className="flex gap-4">
                       <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          <Bot className="h-5 w-5" />
+                        <AvatarFallback className="bg-primary/10">
+                          <Bot className="h-5 w-5 text-primary" />
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex items-center gap-1 rounded-lg bg-muted px-4 py-3">
