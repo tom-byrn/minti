@@ -219,20 +219,19 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const accessToken = localStorage.getItem("plaid_access_token")
-      if (!accessToken) {
-        setError("No bank connection found")
-        setLoading(false)
-        return
-      }
-
       try {
         // Fetch transactions
         const response = await fetch("/api/plaid/transactions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ access_token: accessToken }),
+          body: JSON.stringify({}),
         })
+
+        if (response.status === 404) {
+          setError("No bank connection found")
+          setLoading(false)
+          return
+        }
 
         if (!response.ok) {
           throw new Error("Failed to fetch transactions")

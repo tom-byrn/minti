@@ -4,6 +4,7 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { AccountsOverview } from "@/components/accounts-overview"
 import { TransactionsList } from "@/components/transactions-list"
 import { SpendingChart } from "@/components/spending-chart"
+import { BankConnectionChecker } from "@/components/bank-connection-checker"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -31,15 +32,17 @@ export default async function DashboardPage() {
       <div className="relative z-10">
         <DashboardHeader />
         <main className="container mx-auto px-4 py-8 lg:px-8">
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <h1 className="text-4xl font-serif font-semibold text-foreground">Welcome back, {displayName}</h1>
-              <p className="text-lg text-muted-foreground">Here's your financial overview</p>
+          <BankConnectionChecker>
+            <div className="space-y-8">
+              <div className="space-y-2">
+                <h1 className="text-4xl font-serif font-semibold text-foreground">Welcome back, {displayName}</h1>
+                <p className="text-lg text-muted-foreground">Here&apos;s your financial overview</p>
+              </div>
+              <AccountsOverview />
+              <SpendingChart />
+              <TransactionsList />
             </div>
-            <AccountsOverview />
-            <SpendingChart />
-            <TransactionsList />
-          </div>
+          </BankConnectionChecker>
         </main>
       </div>
     </div>

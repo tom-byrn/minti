@@ -1,16 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { plaidClient } from '@/lib/plaid';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { access_token, start_date, end_date } = await request.json();
+    const supabase = await createClient();
 
-    if (!access_token) {
+    // Authenticate user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get user's Plaid secret_id from database (most recently updated first)
+    const { data: plaidItems, error: plaidError } = await supabase
+      .from('plaid_items')
+      .select('secret_id')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false });
+
+    if (plaidError || !plaidItems || plaidItems.length === 0) {
       return NextResponse.json(
-        { error: 'Access token is required' },
-        { status: 400 }
+        { error: 'No connected accounts found' },
+        { status: 404 }
       );
     }
+
+    // Retrieve access token from Supabase Vault
+    const { data: access_token, error: vaultError } = await supabase.rpc(
+      'get_plaid_token',
+      { p_secret_id: plaidItems[0].secret_id }
+    );
+
+    if (vaultError || !access_token) {
+      return NextResponse.json(
+        { error: 'Failed to retrieve account credentials' },
+        { status: 500 }
+      );
+    }
+
+    const { start_date, end_date } = await request.json();
 
     // Default to last 30 days if no dates provided
     const endDate = end_date || new Date().toISOString().split('T')[0];

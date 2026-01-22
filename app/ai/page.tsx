@@ -1,180 +1,256 @@
 "use client"
 
-import { useState } from "react"
-import { Bot, Send, Sparkles } from "lucide-react"
+import { useEffect, useRef } from "react"
+import { Bot, MessageSquarePlus, Send, Trash2 } from "lucide-react"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { AIPopupProvider } from "@/components/ai-popup-provider"
-
-type Message = {
-  id: number
-  role: "user" | "assistant"
-  content: string
-}
-
-const initialMessages: Message[] = [
-  {
-    id: 1,
-    role: "assistant",
-    content:
-      "Hi! I'm your AI financial assistant. I can help you analyze your spending, create budgets, answer questions about your finances, and provide personalized financial advice. How can I help you today?",
-  },
-]
+import { Markdown } from "@/components/markdown"
+import { useAIChat, getMessageText } from "@/hooks/use-ai-chat"
+import { cn } from "@/lib/utils"
+import { BankConnectionChecker } from "@/components/bank-connection-checker"
 
 const suggestedQuestions = [
   "What's my spending trend?",
   "Create a budget plan",
   "Analyze my expenses",
   "How can I save more money?",
-  "What are my biggest expenses?",
-  "Show me investment opportunities",
 ]
 
 export default function AIPage() {
-  const [messages, setMessages] = useState<Message[]>(initialMessages)
-  const [input, setInput] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const {
+    messages,
+    input,
+    isLoading,
+    handleInputChange,
+    handleSubmit,
+    sendMessage,
+    sessions,
+    currentSessionId,
+    isLoadingSessions,
+    loadSession,
+    createNewSession,
+    deleteSession,
+  } = useAIChat()
 
-  const handleSend = async () => {
-    if (!input.trim()) return
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-    const userMessage: Message = {
-      id: messages.length + 1,
-      role: "user",
-      content: input,
-    }
-
-    setMessages((prev) => [...prev, userMessage])
-    setInput("")
-    setIsLoading(true)
-
-    // Simulate AI response
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: messages.length + 2,
-        role: "assistant",
-        content:
-          "Based on your recent transactions, I can see you've spent $5,800 this month. Your largest expense category is Housing at $2,100, followed by Shopping at $1,389. You're on track with your budget, but I'd recommend reducing discretionary spending by 15% to meet your savings goal. Would you like me to create a detailed savings plan for you?",
-      }
-      setMessages((prev) => [...prev, assistantMessage])
-      setIsLoading(false)
-    }, 1500)
-  }
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
 
   const handleSuggestedQuestion = (question: string) => {
-    setInput(question)
+    sendMessage(question)
+  }
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+
+    if (diffDays === 0) return "Today"
+    if (diffDays === 1) return "Yesterday"
+    if (diffDays < 7) return `${diffDays} days ago`
+    return date.toLocaleDateString()
   }
 
   return (
     <AIPopupProvider hidePopup>
-      <div className="relative flex min-h-screen flex-col bg-background">
-        <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:28px_48px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
-        <div className="relative z-10 flex min-h-screen flex-col">
-          <DashboardHeader />
+      <div className="flex h-screen flex-col bg-background">
+        <DashboardHeader />
 
-        <main className="container mx-auto flex flex-1 flex-col px-4 py-6 lg:px-8">
-          <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col">
-            {/* Header */}
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-                <Sparkles className="h-8 w-8 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">AI Financial Assistant</h1>
-                <p className="text-sm text-muted-foreground">Get personalized financial insights and advice</p>
-              </div>
-            </div>
+        <BankConnectionChecker>
+          <div className="flex flex-1 overflow-hidden">
+            {/* Sidebar */}
+        <aside className="hidden w-64 flex-shrink-0 border-r border-border bg-card/50 lg:flex lg:flex-col">
 
-            {/* Chat Container */}
-            <div className="flex flex-1 flex-col rounded-lg border border-border/50 bg-card/80 backdrop-blur shadow-sm">
-              <ScrollArea className="flex-1 p-6">
-                <div className="space-y-6">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex gap-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+          <div className="p-3">
+            <Button
+              onClick={createNewSession}
+              className="w-full gap-2"
+              variant="outline"
+            >
+              <MessageSquarePlus className="h-4 w-4" />
+              New Chat
+            </Button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-2">
+            {isLoadingSessions ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : sessions.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                No conversations yet
+              </p>
+            ) : (
+              <div className="space-y-1">
+                {sessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className={cn(
+                      "group flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors cursor-pointer",
+                      currentSessionId === session.id
+                        ? "bg-primary/10 text-primary"
+                        : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    )}
+                    onClick={() => loadSession(session.id)}
+                  >
+                    <div className="flex-1 truncate">
+                      <p className="truncate font-medium">{session.title}</p>
+                      <p className="text-xs opacity-60">
+                        {formatDate(session.updated_at)}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        deleteSession(session.id)
+                      }}
                     >
-                      {message.role === "assistant" && (
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-primary/10">
-                            <Bot className="h-5 w-5 text-primary" />
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
-                      <div
-                        className={`max-w-[80%] rounded-lg px-4 py-3 ${
-                          message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
-                        }`}
-                      >
-                        <p className="leading-relaxed">{message.content}</p>
-                      </div>
-                      {message.role === "user" && (
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback>JD</AvatarFallback>
-                        </Avatar>
-                      )}
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </aside>
+
+        {/* Main Chat Area */}
+        <main className="flex flex-1 flex-col">
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="mx-auto max-w-3xl space-y-6">
+              {/* Welcome message */}
+              {messages.length === 0 && (
+                <>
+                  <div className="flex gap-4">
+                    <Avatar className="h-10 w-10 flex-shrink-0">
+                      <AvatarFallback className="bg-primary/10">
+                        <Bot className="h-5 w-5 text-primary" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="rounded-lg bg-muted px-4 py-3 text-foreground">
+                      <p className="leading-relaxed">
+                        Hi! I&apos;m Minti, your AI financial assistant. I can help you
+                        analyze your spending, create budgets, answer questions about
+                        your finances, and provide personalized financial advice. How
+                        can I help you today?
+                      </p>
                     </div>
-                  ))}
-                  {isLoading && (
-                    <div className="flex gap-4">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-primary/10">
-                          <Bot className="h-5 w-5 text-primary" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex items-center gap-1 rounded-lg bg-muted px-4 py-3">
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-foreground [animation-delay:-0.3s]" />
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-foreground [animation-delay:-0.15s]" />
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-foreground" />
-                      </div>
+                  </div>
+
+                  {/* Suggested Questions */}
+                  <div className="ml-14">
+                    <p className="mb-3 text-sm text-muted-foreground">
+                      Try asking:
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {suggestedQuestions.map((question) => (
+                        <Button
+                          key={question}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSuggestedQuestion(question)}
+                        >
+                          {question}
+                        </Button>
+                      ))}
                     </div>
+                  </div>
+                </>
+              )}
+
+              {/* Messages */}
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={cn(
+                    "flex gap-4",
+                    message.role === "user" ? "justify-end" : "justify-start"
+                  )}
+                >
+                  {message.role === "assistant" && (
+                    <Avatar className="h-10 w-10 flex-shrink-0">
+                      <AvatarFallback className="bg-primary/10">
+                        <Bot className="h-5 w-5 text-primary" />
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div
+                    className={cn(
+                      "max-w-[80%] rounded-lg px-4 py-3",
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-foreground"
+                    )}
+                  >
+                    {message.role === "assistant" ? (
+                      <Markdown content={getMessageText(message)} />
+                    ) : (
+                      <p className="leading-relaxed whitespace-pre-wrap">
+                        {getMessageText(message)}
+                      </p>
+                    )}
+                  </div>
+                  {message.role === "user" && (
+                    <Avatar className="h-10 w-10 flex-shrink-0">
+                      <AvatarFallback>You</AvatarFallback>
+                    </Avatar>
                   )}
                 </div>
-              </ScrollArea>
+              ))}
 
-              {/* Suggested Questions */}
-              {messages.length === 1 && (
-                <div className="border-t border-border p-4">
-                  <p className="mb-3 text-sm text-muted-foreground">Suggested questions:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {suggestedQuestions.map((question) => (
-                      <Button
-                        key={question}
-                        variant="outline"
-                        size="sm"
-                        className="bg-transparent"
-                        onClick={() => handleSuggestedQuestion(question)}
-                      >
-                        {question}
-                      </Button>
-                    ))}
+              {/* Loading indicator */}
+              {isLoading && (
+                <div className="flex gap-4">
+                  <Avatar className="h-10 w-10 flex-shrink-0">
+                    <AvatarFallback className="bg-primary/10">
+                      <Bot className="h-5 w-5 text-primary" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex items-center gap-1 rounded-lg bg-muted px-4 py-3">
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-foreground/50 [animation-delay:-0.3s]" />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-foreground/50 [animation-delay:-0.15s]" />
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-foreground/50" />
                   </div>
                 </div>
               )}
 
-              {/* Input Area */}
-              <div className="border-t border-border p-4">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Ask me anything about your finances..."
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                    disabled={isLoading}
-                    className="flex-1"
-                  />
-                  <Button onClick={handleSend} disabled={isLoading || !input.trim()} size="icon" className="h-10 w-10">
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              <div ref={messagesEndRef} />
             </div>
           </div>
+
+          {/* Input Area */}
+          <div className="border-t border-border bg-background p-4">
+            <form onSubmit={handleSubmit} className="mx-auto flex max-w-3xl gap-2">
+              <Input
+                placeholder="Ask me anything about your finances..."
+                value={input}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                className="flex-1"
+              />
+              <Button
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                size="icon"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </form>
+          </div>
         </main>
-        </div>
+          </div>
+        </BankConnectionChecker>
       </div>
     </AIPopupProvider>
   )

@@ -9,6 +9,62 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_chat_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          role: string
+          session_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          role: string
+          session_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "ai_chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_chat_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           avatar_url: string | null
@@ -55,6 +111,15 @@ export type Database = {
   }
 }
 
+// Type aliases for convenience
 export type UserProfile = Database['public']['Tables']['user_profiles']['Row']
 export type UserProfileInsert = Database['public']['Tables']['user_profiles']['Insert']
 export type UserProfileUpdate = Database['public']['Tables']['user_profiles']['Update']
+
+export type AIChatSession = Database['public']['Tables']['ai_chat_sessions']['Row']
+export type AIChatSessionInsert = Database['public']['Tables']['ai_chat_sessions']['Insert']
+export type AIChatSessionUpdate = Database['public']['Tables']['ai_chat_sessions']['Update']
+
+export type AIChatMessage = Database['public']['Tables']['ai_chat_messages']['Row']
+export type AIChatMessageInsert = Database['public']['Tables']['ai_chat_messages']['Insert']
+export type AIChatMessageUpdate = Database['public']['Tables']['ai_chat_messages']['Update']

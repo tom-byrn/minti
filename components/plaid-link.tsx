@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 
 interface PlaidLinkProps {
-  onSuccess?: (accessToken: string) => void
+  onSuccess?: () => void
 }
 
 export function PlaidLink({ onSuccess }: PlaidLinkProps) {
@@ -41,13 +41,13 @@ export function PlaidLink({ onSuccess }: PlaidLinkProps) {
           body: JSON.stringify({ public_token }),
         })
 
-        const data = await response.json()
+        if (!response.ok) {
+          throw new Error("Failed to exchange token")
+        }
 
-        // Store access token in localStorage (NOT recommended for production)
-        localStorage.setItem("plaid_access_token", data.access_token)
-
+        // Token is securely stored in Supabase Vault by the server
         if (onSuccess) {
-          onSuccess(data.access_token)
+          onSuccess()
         }
       } catch (error) {
         console.error("Error exchanging public token:", error)

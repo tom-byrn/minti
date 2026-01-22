@@ -8,10 +8,8 @@ import {
   Wallet,
   TrendingUp,
   Loader2,
-  AlertCircle,
   Plus,
   RefreshCw,
-  X,
   ChevronRight,
   Utensils,
   Car,
@@ -40,6 +38,8 @@ import {
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
+import { BankConnectionChecker } from "@/components/bank-connection-checker"
+import { ReconnectBankCard } from "@/components/reconnect-bank-card"
 
 interface PlaidAccount {
   account_id: string
@@ -176,36 +176,32 @@ function groupAccountsByType(accounts: PlaidAccount[]): AccountGroup[] {
 
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState<PlaidAccount[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [hasConnection, setHasConnection] = useState(false)
+  const [hasConnection, setHasConnection] = useState(true)
   const [selectedAccount, setSelectedAccount] = useState<PlaidAccount | null>(null)
   const [accountTransactions, setAccountTransactions] = useState<PlaidTransaction[]>([])
   const [loadingTransactions, setLoadingTransactions] = useState(false)
   const [showAddAccount, setShowAddAccount] = useState(false)
 
   const fetchAccounts = async (showRefresh = false) => {
-    const accessToken = localStorage.getItem("plaid_access_token")
-    if (!accessToken) {
-      setLoading(false)
-      setHasConnection(false)
-      return
-    }
-
-    setHasConnection(true)
     if (showRefresh) setRefreshing(true)
 
     try {
       const response = await fetch("/api/plaid/balance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ access_token: accessToken }),
+        body: JSON.stringify({}),
       })
+
+      if (response.status === 404) {
+        setHasConnection(false)
+        return
+      }
 
       if (!response.ok) {
         if (response.status === 400 || response.status === 401) {
-          localStorage.removeItem("plaid_access_token")
           setHasConnection(false)
           setError("Your bank connection has expired. Please reconnect.")
         } else {
@@ -214,6 +210,7 @@ export default function AccountsPage() {
         return
       }
 
+      setHasConnection(true)
       const data = await response.json()
       setAccounts(data.accounts || [])
       setError(null)
@@ -227,15 +224,12 @@ export default function AccountsPage() {
   }
 
   const fetchAccountTransactions = async (accountId: string) => {
-    const accessToken = localStorage.getItem("plaid_access_token")
-    if (!accessToken) return
-
     setLoadingTransactions(true)
     try {
       const response = await fetch("/api/plaid/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ access_token: accessToken }),
+        body: JSON.stringify({}),
       })
 
       if (response.ok) {
@@ -254,7 +248,7 @@ export default function AccountsPage() {
     fetchAccounts()
   }, [])
 
-  const handlePlaidSuccess = (accessToken: string) => {
+  const handlePlaidSuccess = () => {
     setHasConnection(true)
     setError(null)
     setShowAddAccount(false)
@@ -272,7 +266,7 @@ export default function AccountsPage() {
   }
 
   const handleDisconnect = () => {
-    localStorage.removeItem("plaid_access_token")
+    // TODO: Implement server-side disconnect
     setHasConnection(false)
     setAccounts([])
     setSelectedAccount(null)
@@ -291,30 +285,15 @@ export default function AccountsPage() {
 
   const accountGroups = groupAccountsByType(accounts)
 
-  if (loading) {
-    return (
-      <div className="relative min-h-screen bg-background">
-        <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:28px_48px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
-        <div className="relative z-10">
-          <DashboardHeader />
-          <main className="container mx-auto px-4 py-8 lg:px-8">
-            <div className="flex items-center justify-center py-24">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          </main>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="relative min-h-screen bg-background">
       <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:28px_48px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
       <div className="relative z-10">
         <DashboardHeader />
         <main className="container mx-auto px-4 py-8 lg:px-8">
-          <div className="space-y-8">
-            {/* Header */}
+          <BankConnectionChecker>
+            <div className="space-y-8">
+              {/* Header */}
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <h1 className="text-4xl font-serif font-semibold text-foreground">Accounts</h1>
@@ -337,30 +316,7 @@ export default function AccountsPage() {
 
             {/* No connection state */}
             {!hasConnection && (
-              <div className="flex flex-col items-center justify-center py-16 px-4">
-                <Card className="max-w-md w-full border-border/50 shadow-lg bg-card/80 backdrop-blur">
-                  <CardHeader className="space-y-3">
-                    {error ? (
-                      <div className="mx-auto h-16 w-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
-                        <AlertCircle className="h-8 w-8 text-destructive" />
-                      </div>
-                    ) : (
-                      <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                        <Building2 className="h-8 w-8 text-primary" />
-                      </div>
-                    )}
-                    <CardTitle className="text-center font-serif text-3xl">
-                      {error ? "Reconnect Required" : "Connect Your Bank"}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex flex-col items-center gap-6">
-                    <p className="text-center text-base text-muted-foreground leading-relaxed">
-                      {error || "Connect your bank accounts to view balances, track spending, and manage your finances."}
-                    </p>
-                    <PlaidLink onSuccess={handlePlaidSuccess} />
-                  </CardContent>
-                </Card>
-              </div>
+              <ReconnectBankCard onSuccess={handlePlaidSuccess} error={error} />
             )}
 
             {/* Connected state */}
@@ -368,7 +324,7 @@ export default function AccountsPage() {
               <>
                 {/* Net Worth Summary */}
                 <div className="grid gap-5 sm:grid-cols-3">
-                  <Card className="border-border/50 bg-card/80 backdrop-blur shadow-sm">
+                  <Card className="border-border/50 bg-card/80 backdrop-blur shadow-lg">
                     <CardHeader className="pb-2">
                       <CardDescription className="text-base">Total Assets</CardDescription>
                     </CardHeader>
@@ -379,7 +335,7 @@ export default function AccountsPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-border/50 bg-card/80 backdrop-blur shadow-sm">
+                  <Card className="border-border/50 bg-card/80 backdrop-blur shadow-lg">
                     <CardHeader className="pb-2">
                       <CardDescription className="text-base">Total Liabilities</CardDescription>
                     </CardHeader>
@@ -390,7 +346,7 @@ export default function AccountsPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-border/50 bg-card/80 backdrop-blur shadow-sm border-primary/30">
+                  <Card className="border-border/50 bg-card/80 backdrop-blur shadow-lg">
                     <CardHeader className="pb-2">
                       <CardDescription className="text-base">Net Worth</CardDescription>
                     </CardHeader>
@@ -530,6 +486,7 @@ export default function AccountsPage() {
               </>
             )}
           </div>
+          </BankConnectionChecker>
         </main>
       </div>
 
@@ -660,7 +617,7 @@ export default function AccountsPage() {
               <Building2 className="h-8 w-8 text-primary" />
             </div>
             <p className="text-center text-muted-foreground">
-              You'll be redirected to securely connect your bank through Plaid.
+              You&apos;ll be redirected to securely connect your bank through Plaid.
             </p>
             <PlaidLink onSuccess={handlePlaidSuccess} />
           </div>

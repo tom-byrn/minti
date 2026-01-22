@@ -17,59 +17,22 @@ export default function AccountsPage() {
   const [hasBankConnection, setHasBankConnection] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchBankDetails = async () => {
-      const accessToken = localStorage.getItem("plaid_access_token")
-      if (accessToken) {
-        setHasBankConnection(true)
-        try {
-          const response = await fetch("/api/plaid/balance", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ access_token: accessToken }),
-          })
-
-          if (response.ok) {
-            const data = await response.json()
-            if (data.accounts) {
-              setBankAccounts(
-                data.accounts.map((acc: any) => ({
-                  name: acc.name,
-                  type: acc.type,
-                  mask: acc.mask || "****",
-                }))
-              )
-            }
-          } else {
-            setHasBankConnection(false)
-            localStorage.removeItem("plaid_access_token")
-          }
-        } catch {
-          setHasBankConnection(false)
-        }
-      }
-      setLoading(false)
-    }
-
-    fetchBankDetails()
-  }, [])
-
-  const handleBankReconnect = () => {
-    localStorage.removeItem("plaid_access_token")
-    setHasBankConnection(false)
-    setBankAccounts([])
-  }
-
-  const handlePlaidSuccess = async (accessToken: string) => {
-    setHasBankConnection(true)
+  const fetchBankDetails = async () => {
     try {
       const response = await fetch("/api/plaid/balance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ access_token: accessToken }),
+        body: JSON.stringify({}),
       })
 
+      if (response.status === 404) {
+        setHasBankConnection(false)
+        setLoading(false)
+        return
+      }
+
       if (response.ok) {
+        setHasBankConnection(true)
         const data = await response.json()
         if (data.accounts) {
           setBankAccounts(
@@ -80,10 +43,27 @@ export default function AccountsPage() {
             }))
           )
         }
+      } else {
+        setHasBankConnection(false)
       }
-    } catch (err) {
-      console.error("Error fetching bank details:", err)
+    } catch {
+      setHasBankConnection(false)
     }
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    fetchBankDetails()
+  }, [])
+
+  const handleBankReconnect = () => {
+    // TODO: Implement server-side disconnect
+    setHasBankConnection(false)
+    setBankAccounts([])
+  }
+
+  const handlePlaidSuccess = async () => {
+    fetchBankDetails()
   }
 
   return (

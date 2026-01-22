@@ -101,18 +101,18 @@ export function TransactionsList() {
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      const accessToken = localStorage.getItem("plaid_access_token")
-      if (!accessToken) {
-        setLoading(false)
-        return
-      }
-
       try {
         const response = await fetch("/api/plaid/transactions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ access_token: accessToken }),
+          body: JSON.stringify({}),
         })
+
+        if (response.status === 404) {
+          // No connected accounts
+          setLoading(false)
+          return
+        }
 
         if (response.status === 202) {
           setError("Transactions are being synced. Please check back in a moment.")

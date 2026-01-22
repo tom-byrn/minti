@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { AlertCircle, CreditCard, DollarSign, TrendingUp, Loader2 } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PlaidLink } from "@/components/plaid-link"
+import { useEffect, useState, useCallback } from "react"
+import { CreditCard, DollarSign, TrendingUp, Loader2 } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { ReconnectBankCard } from "@/components/reconnect-bank-card"
 
 interface Account {
   name: string
@@ -17,10 +17,10 @@ interface Account {
 export function AccountsOverview() {
   const [accounts, setAccounts] = useState<Account[]>([])
   const [loading, setLoading] = useState(true)
-  const [hasAccessToken, setHasAccessToken] = useState(false)
+  const [hasConnectedAccount, setHasConnectedAccount] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchBalance = async (accessToken: string) => {
+  const fetchBalance = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -29,17 +29,24 @@ export function AccountsOverview() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ access_token: accessToken }),
+        body: JSON.stringify({}),
       })
 
       const data = await response.json()
 
-      if (!response.ok) {
-        localStorage.removeItem("plaid_access_token")
-        setError("Your bank connection has expired. Please reconnect your account.")
-        setHasAccessToken(false)
+      if (response.status === 404) {
+        // No connected accounts
+        setHasConnectedAccount(false)
         return
       }
+
+      if (!response.ok) {
+        setError("Your bank connection has expired. Please reconnect your account.")
+        setHasConnectedAccount(false)
+        return
+      }
+
+      setHasConnectedAccount(true)
 
       if (data.accounts) {
         const formattedAccounts: Account[] = [
@@ -67,57 +74,24 @@ export function AccountsOverview() {
       }
     } catch (err) {
       console.error("Error fetching balance:", err)
-      localStorage.removeItem("plaid_access_token")
       setError("Failed to connect to your bank. Please try again.")
-      setHasAccessToken(false)
+      setHasConnectedAccount(false)
     } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    const accessToken = localStorage.getItem("plaid_access_token")
-    if (accessToken) {
-      setHasAccessToken(true)
-      fetchBalance(accessToken)
-    } else {
       setLoading(false)
     }
   }, [])
 
-  const handlePlaidSuccess = (accessToken: string) => {
+  useEffect(() => {
+    fetchBalance()
+  }, [fetchBalance])
+
+  const handlePlaidSuccess = () => {
     setError(null)
-    setHasAccessToken(true)
-    fetchBalance(accessToken)
+    fetchBalance()
   }
 
-  if (!hasAccessToken) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 px-4">
-        <Card className="max-w-md w-full border-border/50 shadow-lg bg-card/80 backdrop-blur">
-          <CardHeader className="space-y-3">
-            {error ? (
-              <div className="mx-auto h-16 w-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
-                <AlertCircle className="h-8 w-8 text-destructive" />
-              </div>
-            ) : (
-              <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <DollarSign className="h-8 w-8 text-primary" />
-              </div>
-            )}
-            <CardTitle className="text-center font-serif text-3xl">
-              {error ? "Reconnect Your Bank" : "Connect Your Bank Account"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center gap-6">
-            <p className="text-center text-base text-muted-foreground leading-relaxed">
-              {error || "Connect your bank account with Plaid to view your real-time balance and transactions in one beautiful place."}
-            </p>
-            <PlaidLink onSuccess={handlePlaidSuccess} />
-          </CardContent>
-        </Card>
-      </div>
-    )
+  if (!hasConnectedAccount) {
+    return <ReconnectBankCard onSuccess={handlePlaidSuccess} error={error} />
   }
 
   if (loading) {

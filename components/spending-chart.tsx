@@ -67,12 +67,6 @@ export function SpendingChart() {
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      const accessToken = localStorage.getItem("plaid_access_token")
-      if (!accessToken) {
-        setLoading(false)
-        return
-      }
-
       try {
         // Fetch last 6 months of transactions
         const endDate = new Date().toISOString().split("T")[0]
@@ -82,11 +76,16 @@ export function SpendingChart() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            access_token: accessToken,
             start_date: startDate,
             end_date: endDate,
           }),
         })
+
+        if (response.status === 404) {
+          // No connected accounts
+          setLoading(false)
+          return
+        }
 
         if (response.status === 202) {
           setError("Transactions are being synced...")

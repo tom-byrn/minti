@@ -4,12 +4,12 @@ import { useEffect, useState } from 'react'
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { DollarSign, Wallet, PiggyBank, Percent, Loader2, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { PlaidLink } from "@/components/plaid-link"
+import { ReconnectBankCard } from "@/components/reconnect-bank-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts"
+import { BankConnectionChecker } from "@/components/bank-connection-checker"
 
 interface AnalyticsData {
   summaryStats: {
@@ -25,13 +25,13 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<AnalyticsData | null>(null)
-  const [hasAccessToken, setHasAccessToken] = useState(false)
+  const [hasConnectedAccount, setHasConnectedAccount] = useState(true)
   const [spendingPeriod, setSpendingPeriod] = useState<string>('1m')
 
-  const fetchAnalytics = async (accessToken: string, period: string = spendingPeriod) => {
+  const fetchAnalytics = async (period: string = spendingPeriod) => {
     try {
       setLoading(true)
       setError(null)
@@ -41,107 +41,50 @@ export default function AnalyticsPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ access_token: accessToken, spending_period: period }),
+        body: JSON.stringify({ spending_period: period }),
       })
 
       const result = await response.json()
+
+      if (response.status === 404) {
+        setHasConnectedAccount(false)
+        return
+      }
 
       if (!response.ok) {
         if (response.status === 202) {
           setError('Transactions are still being processed. Please refresh in a moment.')
         } else {
-          localStorage.removeItem('plaid_access_token')
           setError('Your bank connection has expired. Please reconnect your account.')
-          setHasAccessToken(false)
+          setHasConnectedAccount(false)
         }
         return
       }
 
+      setHasConnectedAccount(true)
       setData(result)
     } catch (err) {
       console.error('Error fetching analytics:', err)
-      localStorage.removeItem('plaid_access_token')
       setError('Failed to connect to your bank. Please try again.')
-      setHasAccessToken(false)
+      setHasConnectedAccount(false)
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('plaid_access_token')
-    if (accessToken) {
-      setHasAccessToken(true)
-      fetchAnalytics(accessToken, spendingPeriod)
-    } else {
-      setLoading(false)
-    }
+    fetchAnalytics(spendingPeriod)
   }, [])
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('plaid_access_token')
-    if (accessToken && hasAccessToken) {
-      fetchAnalytics(accessToken, spendingPeriod)
+    if (hasConnectedAccount) {
+      fetchAnalytics(spendingPeriod)
     }
   }, [spendingPeriod])
 
-  const handlePlaidSuccess = (accessToken: string) => {
+  const handlePlaidSuccess = () => {
     setError(null)
-    setHasAccessToken(true)
-    fetchAnalytics(accessToken, spendingPeriod)
-  }
-
-  if (!hasAccessToken) {
-    return (
-      <div className="relative min-h-screen bg-background">
-        <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:28px_48px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
-        <div className="relative z-10">
-          <DashboardHeader />
-          <main className="container mx-auto px-4 py-8 lg:px-8">
-            <div className="flex flex-col items-center justify-center py-16 px-4">
-              <Card className="max-w-md w-full border-border/50 shadow-lg bg-card/80 backdrop-blur">
-                <CardHeader className="space-y-3">
-                  {error ? (
-                    <div className="mx-auto h-16 w-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
-                      <AlertCircle className="h-8 w-8 text-destructive" />
-                    </div>
-                  ) : (
-                    <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                      <DollarSign className="h-8 w-8 text-primary" />
-                    </div>
-                  )}
-                  <CardTitle className="text-center font-serif text-3xl">
-                    {error ? "Reconnect Your Bank" : "Connect Your Bank Account"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center gap-6">
-                  <p className="text-center text-base text-muted-foreground leading-relaxed">
-                    {error || "Connect your bank account with Plaid to view your analytics and financial insights."}
-                  </p>
-                  <PlaidLink onSuccess={handlePlaidSuccess} />
-                </CardContent>
-              </Card>
-            </div>
-          </main>
-        </div>
-      </div>
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="relative min-h-screen bg-background">
-        <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:28px_48px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
-        <div className="relative z-10">
-          <DashboardHeader />
-          <main className="container mx-auto px-4 py-8 lg:px-8">
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          </main>
-        </div>
-      </div>
-    )
+    fetchAnalytics(spendingPeriod)
   }
 
   if (error || !data) {
@@ -167,8 +110,9 @@ export default function AnalyticsPage() {
       <div className="relative z-10">
         <DashboardHeader />
         <main className="container mx-auto px-4 py-8 lg:px-8">
-          <div className="space-y-6">
-            {/* Header with Summary Stats */}
+          <BankConnectionChecker>
+            <div className="space-y-6">
+              {/* Header with Summary Stats */}
             <div className="space-y-6">
               <div className="flex items-end justify-between">
                 <div className="space-y-2">
@@ -527,6 +471,7 @@ export default function AnalyticsPage() {
               </CardContent>
             </Card>
           </div>
+          </BankConnectionChecker>
         </main>
       </div>
     </div>
