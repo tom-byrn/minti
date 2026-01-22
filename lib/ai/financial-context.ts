@@ -20,6 +20,13 @@ export async function getFinancialContext(userId: string): Promise<string | null
   try {
     const supabase = await createClient()
 
+    // Fetch budget profile for user context
+    const { data: budgetProfile } = await supabase
+      .from('budget_profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+
     // Get user's Plaid secret_id from database (most recently updated first)
     const { data: plaidItems, error: plaidError } = await supabase
       .from('plaid_items')
@@ -116,15 +123,44 @@ export async function getFinancialContext(userId: string): Promise<string | null
       topCategories,
     }
 
-    return formatFinancialContext(snapshot)
+    return formatFinancialContext(snapshot, budgetProfile)
   } catch (error) {
     console.error('Error fetching financial context:', error)
     return null
   }
 }
 
-function formatFinancialContext(snapshot: FinancialSnapshot): string {
+interface BudgetProfileData {
+  occupation: string | null
+  annual_income: number | null
+  savings_goal_yearly: number | null
+  financial_goals: string | null
+}
+
+function formatFinancialContext(snapshot: FinancialSnapshot, budgetProfile?: BudgetProfileData | null): string {
   const lines: string[] = []
+
+  // Include user financial profile if available
+  if (budgetProfile) {
+    const hasProfileData = budgetProfile.occupation || budgetProfile.annual_income ||
+                          budgetProfile.savings_goal_yearly || budgetProfile.financial_goals
+    if (hasProfileData) {
+      lines.push('**User Financial Profile:**')
+      if (budgetProfile.occupation) {
+        lines.push(`- Occupation: ${budgetProfile.occupation}`)
+      }
+      if (budgetProfile.annual_income) {
+        lines.push(`- Annual Income: $${budgetProfile.annual_income.toLocaleString()}`)
+      }
+      if (budgetProfile.savings_goal_yearly) {
+        lines.push(`- Yearly Savings Goal: $${budgetProfile.savings_goal_yearly.toLocaleString()}`)
+      }
+      if (budgetProfile.financial_goals) {
+        lines.push(`\n**Financial Goals & Plans:**\n${budgetProfile.financial_goals}`)
+      }
+      lines.push('')
+    }
+  }
 
   lines.push(`**Total Balance Across All Accounts:** $${snapshot.totalBalance.toLocaleString()}`)
   lines.push('')

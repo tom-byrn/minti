@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Menu, Search, Settings, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -14,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAIPopup } from "./ai-popup-provider"
+import { useTransactionSearch } from "./transaction-search-provider"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { settingsNavItems } from "@/lib/settings-config"
@@ -24,11 +24,13 @@ const navLinks = [
   { href: "/", label: "Dashboard" },
   { href: "/accounts", label: "Accounts" },
   { href: "/analytics", label: "Analytics" },
+  { href: "/budget", label: "Budget" },
   { href: "/ai", label: "AI Assistant" },
 ]
 
 export function DashboardHeader() {
   const { togglePopup } = useAIPopup()
+  const { openSearch } = useTransactionSearch()
   const pathname = usePathname()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [email, setEmail] = useState("")
@@ -107,10 +109,17 @@ export function DashboardHeader() {
 
         {/* Search and Actions */}
         <div className="flex items-center gap-3">
-          <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input type="search" placeholder="Search transactions..." className="w-64 pl-9 bg-background/50 border-border/50 focus:bg-background" />
-          </div>
+          <Button
+            variant="outline"
+            onClick={openSearch}
+            className="hidden md:flex w-64 justify-start text-muted-foreground bg-background/50 border-border/50 hover:bg-background"
+          >
+            <Search className="mr-2 h-4 w-4" />
+            <span className="flex-1 text-left">Search transactions...</span>
+            <kbd className="pointer-events-none ml-auto hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </Button>
 
           <Button variant="ghost" size="icon" onClick={togglePopup} className="hover:bg-primary/10 hover:text-primary rounded-xl">
             <MessageSquare className="h-5 w-5" />
