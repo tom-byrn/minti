@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react'
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { DollarSign, Wallet, PiggyBank, Percent, Loader2, AlertCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { DollarSign, Wallet, PiggyBank, Percent, AlertCircle, Target } from "lucide-react"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { ReconnectBankCard } from "@/components/reconnect-bank-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -21,11 +23,11 @@ interface AnalyticsData {
   dailySpending: Array<{ date: string; day: number; month: string; amount: number; label?: string }>
   categoryBreakdown: Array<{ category: string; amount: number; percentage: number; color: string }>
   incomeVsExpenses: Array<{ month: string; income: number; expenses: number }>
-  budgetProgress: Array<{ category: string; spent: number; budget: number; percentage: number }>
+  budgetProgress: Array<{ category: string; spent: number; budget: number | null; percentage: number; hasBudget: boolean }>
 }
 
 export default function AnalyticsPage() {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [hasConnectedAccount, setHasConnectedAccount] = useState(true)
@@ -94,10 +96,12 @@ export default function AnalyticsPage() {
         <div className="relative z-10">
           <DashboardHeader />
           <main className="container mx-auto px-4 py-8 lg:px-8">
-            <div className="flex flex-col items-center justify-center py-16 gap-4">
-              <AlertCircle className="h-12 w-12 text-destructive" />
-              <p className="text-center text-lg text-muted-foreground">{error}</p>
-            </div>
+            {error && (
+              <div className="flex flex-col items-center justify-center py-16 gap-4">
+                <AlertCircle className="h-12 w-12 text-destructive" />
+                <p className="text-center text-lg text-muted-foreground">{error}</p>
+              </div>
+            )}
           </main>
         </div>
       </div>
@@ -394,80 +398,105 @@ export default function AnalyticsPage() {
                     <CardTitle className="text-2xl font-serif font-semibold">Budget Progress</CardTitle>
                     <CardDescription>Track your spending limits</CardDescription>
                   </div>
+                  <Link href="/budget">
+                    <Button variant="outline" size="sm">
+                      <Target className="h-4 w-4 mr-2" />
+                      Manage Budgets
+                    </Button>
+                  </Link>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                  {data.budgetProgress.map((budget) => {
-                    const remaining = budget.budget - budget.spent
-                    const isOverBudget = budget.percentage > 100
-                    const isNearLimit = budget.percentage > 90
+                {data.budgetProgress.filter(b => b.hasBudget).length === 0 ? (
+                  // No budgets set - show CTA
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                      <Target className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">No budgets set yet</h3>
+                    <p className="text-muted-foreground mb-6 max-w-md">
+                      Set monthly spending limits for your categories to track your progress and stay on budget.
+                    </p>
+                    <Link href="/budget">
+                      <Button>
+                        <Target className="h-4 w-4 mr-2" />
+                        Set Up Your First Budget
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                    {data.budgetProgress.filter(b => b.hasBudget).map((budget) => {
+                      const remaining = (budget.budget || 0) - budget.spent
+                      const isOverBudget = budget.percentage > 100
+                      const isNearLimit = budget.percentage > 90
 
-                    return (
-                      <Card
-                        key={budget.category}
-                        className={`border-border/50 transition-all hover:shadow-md hover:-translate-y-1 ${
-                          isOverBudget
-                            ? 'bg-destructive/5 border-destructive/20'
-                            : isNearLimit
-                            ? 'bg-orange-500/5 border-orange-500/20'
-                            : 'bg-background/50'
-                        }`}
-                      >
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                          <CardTitle className="text-sm font-semibold text-foreground">{budget.category}</CardTitle>
-                          <Badge
-                            variant={isOverBudget || isNearLimit ? "destructive" : "secondary"}
-                            className="text-xs"
-                          >
-                            {budget.percentage}%
-                          </Badge>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Spent</span>
-                              <span className="font-semibold font-serif">
-                                ${budget.spent.toLocaleString()}
-                              </span>
+                      return (
+                        <Card
+                          key={budget.category}
+                          className={`border-border/50 transition-all hover:shadow-md hover:-translate-y-1 ${
+                            isOverBudget
+                              ? 'bg-destructive/5 border-destructive/20'
+                              : isNearLimit
+                              ? 'bg-orange-500/5 border-orange-500/20'
+                              : 'bg-background/50'
+                          }`}
+                        >
+                          <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-semibold text-foreground">{budget.category}</CardTitle>
+                            <Badge
+                              variant={isOverBudget || isNearLimit ? "destructive" : "secondary"}
+                              className="text-xs"
+                            >
+                              {budget.percentage}%
+                            </Badge>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Spent</span>
+                                <span className="font-semibold font-serif">
+                                  ${budget.spent.toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Budget</span>
+                                <span className="font-semibold font-serif">
+                                  ${(budget.budget || 0).toLocaleString()}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Budget</span>
-                              <span className="font-semibold font-serif">
-                                ${budget.budget.toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
 
-                          <div className="space-y-2">
-                            <div className="h-2 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className={`h-full transition-all rounded-full ${
-                                  isOverBudget
-                                    ? 'bg-destructive'
-                                    : isNearLimit
-                                    ? 'bg-orange-500'
-                                    : 'bg-primary'
-                                }`}
-                                style={{ width: `${Math.min(budget.percentage, 100)}%` }}
-                              />
+                            <div className="space-y-2">
+                              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full transition-all rounded-full ${
+                                    isOverBudget
+                                      ? 'bg-destructive'
+                                      : isNearLimit
+                                      ? 'bg-orange-500'
+                                      : 'bg-primary'
+                                  }`}
+                                  style={{ width: `${Math.min(budget.percentage, 100)}%` }}
+                                />
+                              </div>
+                              <p className={`text-xs font-medium ${
+                                remaining < 0
+                                  ? 'text-destructive'
+                                  : 'text-muted-foreground'
+                              }`}>
+                                {remaining >= 0
+                                  ? `$${remaining.toLocaleString()} remaining`
+                                  : `$${Math.abs(remaining).toLocaleString()} over budget`
+                                }
+                              </p>
                             </div>
-                            <p className={`text-xs font-medium ${
-                              remaining < 0
-                                ? 'text-destructive'
-                                : 'text-muted-foreground'
-                            }`}>
-                              {remaining >= 0
-                                ? `$${remaining.toLocaleString()} remaining`
-                                : `$${Math.abs(remaining).toLocaleString()} over budget`
-                              }
-                            </p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )
-                  })}
-                </div>
+                          </CardContent>
+                        </Card>
+                      )
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

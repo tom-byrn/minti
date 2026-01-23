@@ -125,6 +125,30 @@ export type Database = {
         }
         Relationships: []
       }
+      category_budgets: {
+        Row: {
+          id: string
+          user_id: string
+          category: string
+          monthly_limit: number
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          category: string
+          monthly_limit: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          monthly_limit?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -157,3 +181,7 @@ export type AIChatMessageUpdate = Database['public']['Tables']['ai_chat_messages
 export type BudgetProfile = Database['public']['Tables']['budget_profiles']['Row']
 export type BudgetProfileInsert = Database['public']['Tables']['budget_profiles']['Insert']
 export type BudgetProfileUpdate = Database['public']['Tables']['budget_profiles']['Update']
+
+export type CategoryBudget = Database['public']['Tables']['category_budgets']['Row']
+export type CategoryBudgetInsert = Database['public']['Tables']['category_budgets']['Insert']
+export type CategoryBudgetUpdate = Database['public']['Tables']['category_budgets']['Update']

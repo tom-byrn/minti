@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { CreditCard, DollarSign, TrendingUp, Loader2 } from "lucide-react"
+import { CreditCard, DollarSign, TrendingUp } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { ReconnectBankCard } from "@/components/reconnect-bank-card"
 
@@ -90,16 +90,48 @@ export function AccountsOverview() {
     fetchBalance()
   }
 
-  if (!hasConnectedAccount) {
-    return <ReconnectBankCard onSuccess={handlePlaidSuccess} error={error} />
-  }
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-6">
+        {/* Skeleton Total Balance Card */}
+        <Card className="border-border/50 bg-gradient-to-br from-card/90 to-card/70 backdrop-blur shadow-xl">
+          <CardContent className="pt-8 pb-8">
+            <div className="space-y-2">
+              <div className="h-4 w-24 bg-muted-foreground/20 rounded animate-pulse" />
+              <div className="h-14 w-64 bg-muted-foreground/20 rounded animate-pulse" />
+              <div className="h-4 w-32 bg-muted-foreground/20 rounded animate-pulse" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Skeleton Accounts List */}
+        <div className="space-y-3">
+          <div className="h-6 w-32 bg-muted-foreground/20 rounded animate-pulse" />
+          <div className="space-y-2">
+            {[1, 2].map((i) => (
+              <Card key={i} className="border-border/50 bg-card/60 backdrop-blur">
+                <CardContent className="py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="h-16 w-16 rounded-2xl bg-muted-foreground/20 animate-pulse" />
+                      <div className="space-y-2">
+                        <div className="h-4 w-32 bg-muted-foreground/20 rounded animate-pulse" />
+                        <div className="h-3 w-16 bg-muted-foreground/20 rounded animate-pulse" />
+                      </div>
+                    </div>
+                    <div className="h-8 w-24 bg-muted-foreground/20 rounded animate-pulse" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     )
+  }
+
+  if (!hasConnectedAccount) {
+    return <ReconnectBankCard onSuccess={handlePlaidSuccess} error={error} />
   }
 
   const totalBalance = accounts[0]

@@ -317,13 +317,63 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Calculate budget progress based on top spending categories
-    const budgetProgress = categoryBreakdown.slice(0, 4).map((cat) => ({
-      category: cat.category,
-      spent: cat.amount,
-      budget: Math.round(cat.amount * 1.2), // Set budget at 120% of current spending as placeholder
-      percentage: Math.min(100, Math.round((cat.amount / (cat.amount * 1.2)) * 100)),
-    }));
+    // Fetch user's category budgets from database
+    const { data: userBudgets } = await supabase
+      .from('category_budgets')
+      .select('category, monthly_limit')
+      .eq('user_id', user.id);
+
+    // Create a map of category budgets
+    const budgetMap = new Map<string, number>();
+    if (userBudgets) {
+      userBudgets.forEach(b => {
+        // Normalize category name for matching
+        const normalizedCategory = b.category.replace(/\s+/g, ' ').trim();
+        budgetMap.set(normalizedCategory, Number(b.monthly_limit));
+      });
+    }
+
+    // Calculate budget progress - include all categories with budgets
+    const budgetProgress: Array<{
+      category: string;
+      spent: number;
+      budget: number | null;
+      percentage: number;
+      hasBudget: boolean;
+    }> = [];
+
+    // First, add all categories that have budgets (even if no spending)
+    budgetMap.forEach((limit, category) => {
+      const spending = categoryBreakdown.find(c => c.category === category);
+      const spent = spending?.amount || 0;
+      budgetProgress.push({
+        category,
+        spent,
+        budget: limit,
+        percentage: limit > 0 ? Math.round((spent / limit) * 100) : 0,
+        hasBudget: true,
+      });
+    });
+
+    // Then add top spending categories without budgets (for reference)
+    categoryBreakdown.slice(0, 4).forEach(cat => {
+      if (!budgetMap.has(cat.category)) {
+        budgetProgress.push({
+          category: cat.category,
+          spent: cat.amount,
+          budget: null,
+          percentage: 0,
+          hasBudget: false,
+        });
+      }
+    });
+
+    // Sort: categories with budgets first, then by spent amount
+    budgetProgress.sort((a, b) => {
+      if (a.hasBudget && !b.hasBudget) return -1;
+      if (!a.hasBudget && b.hasBudget) return 1;
+      return b.spent - a.spent;
+    });
 
     return NextResponse.json({
       summaryStats: {
