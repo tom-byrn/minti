@@ -3,27 +3,27 @@
 import { useEffect, useState } from "react"
 import { DashboardHeader } from "@/components/dashboard-header"
 import {
-  Building2,
-  CreditCard,
-  Wallet,
-  TrendingUp,
-  Loader2,
-  Plus,
-  RefreshCw,
-  ChevronRight,
-  Utensils,
-  Car,
-  Plane,
-  ShoppingBag,
-  Gamepad2,
-  Home,
-  Heart,
-  GraduationCap,
-  ArrowDownLeft,
-  Banknote,
-  Zap,
-  ExternalLink,
-} from "lucide-react"
+  Buildings as BuildingsIcon,
+  CreditCard as CreditCardIcon,
+  Wallet as WalletIcon,
+  TrendUp as TrendUpIcon,
+  SpinnerGap as SpinnerGapIcon,
+  Plus as PlusIcon,
+  ArrowsClockwise as ArrowsClockwiseIcon,
+  CaretRight as CaretRightIcon,
+  ForkKnife as ForkKnifeIcon,
+  Car as CarIcon,
+  AirplaneTilt as AirplaneTiltIcon,
+  ShoppingBag as ShoppingBagIcon,
+  GameController as GameControllerIcon,
+  House as HouseIcon,
+  Heart as HeartIcon,
+  GraduationCap as GraduationCapIcon,
+  ArrowDownLeft as ArrowDownLeftIcon,
+  Money as MoneyIcon,
+  Lightning as LightningIcon,
+  ArrowSquareOut as ArrowSquareOutIcon,
+} from "@phosphor-icons/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { PlaidLink } from "@/components/plaid-link"
@@ -79,30 +79,30 @@ interface AccountGroup {
 }
 
 const categoryIcons: Record<string, any> = {
-  "FOOD_AND_DRINK": Utensils,
-  "TRANSPORTATION": Car,
-  "TRAVEL": Plane,
-  "SHOPPING": ShoppingBag,
-  "ENTERTAINMENT": Gamepad2,
-  "RENT_AND_UTILITIES": Home,
-  "MEDICAL": Heart,
-  "EDUCATION": GraduationCap,
-  "TRANSFER_IN": ArrowDownLeft,
-  "TRANSFER_OUT": Banknote,
-  "INCOME": ArrowDownLeft,
-  "LOAN_PAYMENTS": CreditCard,
-  "GENERAL_MERCHANDISE": ShoppingBag,
-  "PERSONAL_CARE": Heart,
-  "GENERAL_SERVICES": Zap,
-  "GOVERNMENT_AND_NON_PROFIT": Home,
-  "HOME_IMPROVEMENT": Home,
-  "BANK_FEES": CreditCard,
+  "FOOD_AND_DRINK": ForkKnifeIcon,
+  "TRANSPORTATION": CarIcon,
+  "TRAVEL": AirplaneTiltIcon,
+  "SHOPPING": ShoppingBagIcon,
+  "ENTERTAINMENT": GameControllerIcon,
+  "RENT_AND_UTILITIES": HouseIcon,
+  "MEDICAL": HeartIcon,
+  "EDUCATION": GraduationCapIcon,
+  "TRANSFER_IN": ArrowDownLeftIcon,
+  "TRANSFER_OUT": MoneyIcon,
+  "INCOME": ArrowDownLeftIcon,
+  "LOAN_PAYMENTS": CreditCardIcon,
+  "GENERAL_MERCHANDISE": ShoppingBagIcon,
+  "PERSONAL_CARE": HeartIcon,
+  "GENERAL_SERVICES": LightningIcon,
+  "GOVERNMENT_AND_NON_PROFIT": HouseIcon,
+  "HOME_IMPROVEMENT": HouseIcon,
+  "BANK_FEES": CreditCardIcon,
 }
 
 function getCategoryIcon(category: string | null | undefined): any {
-  if (!category) return CreditCard
+  if (!category) return CreditCardIcon
   const upperCategory = category.toUpperCase()
-  return categoryIcons[upperCategory] || CreditCard
+  return categoryIcons[upperCategory] || CreditCardIcon
 }
 
 function formatDate(dateString: string): string {
@@ -111,9 +111,9 @@ function formatDate(dateString: string): string {
 }
 
 function getAccountIcon(type: string, subtype: string | null) {
-  if (type === "credit") return CreditCard
-  if (subtype === "savings") return TrendingUp
-  return Wallet
+  if (type === "credit") return CreditCardIcon
+  if (subtype === "savings") return TrendUpIcon
+  return WalletIcon
 }
 
 function getAccountTypeLabel(type: string): string {
@@ -134,15 +134,15 @@ function getAccountTypeLabel(type: string): string {
 function getAccountTypeIcon(type: string) {
   switch (type) {
     case "depository":
-      return Building2
+      return BuildingsIcon
     case "credit":
-      return CreditCard
+      return CreditCardIcon
     case "investment":
-      return TrendingUp
+      return TrendUpIcon
     case "loan":
-      return Wallet
+      return WalletIcon
     default:
-      return Wallet
+      return WalletIcon
   }
 }
 
@@ -307,7 +307,7 @@ export default function AccountsPage() {
                     disabled={refreshing}
                     className="gap-2"
                   >
-                    <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+                    <ArrowsClockwiseIcon className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} weight="thin" />
                     Refresh
                   </Button>
                 </div>
@@ -409,7 +409,7 @@ export default function AccountsPage() {
                                       </p>
                                     </div>
                                   </div>
-                                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                                  <CaretRightIcon className="h-5 w-5 text-muted-foreground" weight="thin" />
                                 </div>
 
                                 <div className="space-y-2">
@@ -474,7 +474,7 @@ export default function AccountsPage() {
                 >
                   <CardContent className="flex flex-col items-center justify-center py-8 gap-3">
                     <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                      <Plus className="h-8 w-8 text-primary" />
+                      <PlusIcon className="h-8 w-8 text-primary" weight="thin" />
                     </div>
                     <div className="text-center">
                       <p className="font-medium text-muted-foreground">Add Another Account</p>
@@ -545,11 +545,11 @@ export default function AccountsPage() {
                 <h3 className="font-medium mb-3">Recent Transactions</h3>
                 {loadingTransactions ? (
                   <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    <SpinnerGapIcon className="h-6 w-6 animate-spin text-primary" weight="thin" />
                   </div>
                 ) : accountTransactions.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                    <CreditCard className="h-8 w-8 mb-2" />
+                    <CreditCardIcon className="h-8 w-8 mb-2" weight="thin" />
                     <p>No transactions found</p>
                   </div>
                 ) : (
@@ -594,7 +594,7 @@ export default function AccountsPage() {
                 <Button asChild className="w-full gap-2">
                   <Link href={`/accounts/${selectedAccount.account_id}/transactions`}>
                     View All Transactions
-                    <ExternalLink className="h-4 w-4" />
+                    <ArrowSquareOutIcon className="h-4 w-4" weight="thin" />
                   </Link>
                 </Button>
               </DialogFooter>
@@ -614,7 +614,7 @@ export default function AccountsPage() {
           </DialogHeader>
           <div className="flex flex-col items-center gap-4 py-4">
             <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Building2 className="h-8 w-8 text-primary" />
+              <BuildingsIcon className="h-8 w-8 text-primary" weight="thin" />
             </div>
             <p className="text-center text-muted-foreground">
               You&apos;ll be redirected to securely connect your bank through Plaid.

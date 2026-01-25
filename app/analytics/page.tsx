@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { DollarSign, Wallet, PiggyBank, Percent, AlertCircle, Target } from "lucide-react"
+import { CurrencyDollar as CurrencyDollarIcon, Wallet as WalletIcon, PiggyBank as PiggyBankIcon, Percent as PercentIcon, WarningCircle as WarningCircleIcon, Target as TargetIcon } from "@phosphor-icons/react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { ReconnectBankCard } from "@/components/reconnect-bank-card"
@@ -98,7 +98,7 @@ export default function AnalyticsPage() {
           <main className="container mx-auto px-4 py-8 lg:px-8">
             {error && (
               <div className="flex flex-col items-center justify-center py-16 gap-4">
-                <AlertCircle className="h-12 w-12 text-destructive" />
+                <WarningCircleIcon className="h-12 w-12 text-destructive" weight="thin" />
                 <p className="text-center text-lg text-muted-foreground">{error}</p>
               </div>
             )}
@@ -132,7 +132,7 @@ export default function AnalyticsPage() {
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">Total Spent</CardTitle>
                     <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <DollarSign className="h-5 w-5 text-primary" />
+                      <CurrencyDollarIcon className="h-5 w-5 text-primary" weight="thin" />
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -146,7 +146,7 @@ export default function AnalyticsPage() {
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
                     <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <Wallet className="h-5 w-5 text-primary" />
+                      <WalletIcon className="h-5 w-5 text-primary" weight="thin" />
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -160,7 +160,7 @@ export default function AnalyticsPage() {
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">Total Saved</CardTitle>
                     <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <PiggyBank className="h-5 w-5 text-primary" />
+                      <PiggyBankIcon className="h-5 w-5 text-primary" weight="thin" />
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -174,7 +174,7 @@ export default function AnalyticsPage() {
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">Savings Rate</CardTitle>
                     <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <Percent className="h-5 w-5 text-primary" />
+                      <PercentIcon className="h-5 w-5 text-primary" weight="thin" />
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -400,7 +400,7 @@ export default function AnalyticsPage() {
                   </div>
                   <Link href="/budget">
                     <Button variant="outline" size="sm">
-                      <Target className="h-4 w-4 mr-2" />
+                      <TargetIcon className="h-4 w-4 mr-2" weight="thin" />
                       Manage Budgets
                     </Button>
                   </Link>
@@ -411,7 +411,7 @@ export default function AnalyticsPage() {
                   // No budgets set - show CTA
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                      <Target className="h-8 w-8 text-muted-foreground" />
+                      <TargetIcon className="h-8 w-8 text-muted-foreground" weight="thin" />
                     </div>
                     <h3 className="text-lg font-semibold mb-2">No budgets set yet</h3>
                     <p className="text-muted-foreground mb-6 max-w-md">
@@ -419,7 +419,7 @@ export default function AnalyticsPage() {
                     </p>
                     <Link href="/budget">
                       <Button>
-                        <Target className="h-4 w-4 mr-2" />
+                        <TargetIcon className="h-4 w-4 mr-2" weight="thin" />
                         Set Up Your First Budget
                       </Button>
                     </Link>

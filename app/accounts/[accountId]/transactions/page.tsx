@@ -4,31 +4,31 @@ import { useEffect, useState, useMemo } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard-header"
 import {
-  ArrowLeft,
-  Loader2,
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Filter,
-  X,
-  Utensils,
-  Car,
-  Plane,
-  ShoppingBag,
-  Gamepad2,
-  Home,
-  Heart,
-  GraduationCap,
-  ArrowDownLeft,
-  Banknote,
-  Zap,
-  CreditCard,
-} from "lucide-react"
+  ArrowLeft as ArrowLeftIcon,
+  SpinnerGap as SpinnerGapIcon,
+  WarningCircle as WarningCircleIcon,
+  CaretLeft as CaretLeftIcon,
+  CaretRight as CaretRightIcon,
+  CaretDoubleLeft as CaretDoubleLeftIcon,
+  CaretDoubleRight as CaretDoubleRightIcon,
+  ArrowsDownUp as ArrowsDownUpIcon,
+  ArrowUp as ArrowUpIcon,
+  ArrowDown as ArrowDownIcon,
+  Funnel as FunnelIcon,
+  X as XIcon,
+  ForkKnife as ForkKnifeIcon,
+  Car as CarIcon,
+  AirplaneTilt as AirplaneTiltIcon,
+  ShoppingBag as ShoppingBagIcon,
+  GameController as GameControllerIcon,
+  House as HouseIcon,
+  Heart as HeartIcon,
+  GraduationCap as GraduationCapIcon,
+  ArrowDownLeft as ArrowDownLeftIcon,
+  Money as MoneyIcon,
+  Lightning as LightningIcon,
+  CreditCard as CreditCardIcon,
+} from "@phosphor-icons/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -75,30 +75,30 @@ interface PlaidAccount {
 }
 
 const categoryIcons: Record<string, any> = {
-  "FOOD_AND_DRINK": Utensils,
-  "TRANSPORTATION": Car,
-  "TRAVEL": Plane,
-  "SHOPPING": ShoppingBag,
-  "ENTERTAINMENT": Gamepad2,
-  "RENT_AND_UTILITIES": Home,
-  "MEDICAL": Heart,
-  "EDUCATION": GraduationCap,
-  "TRANSFER_IN": ArrowDownLeft,
-  "TRANSFER_OUT": Banknote,
-  "INCOME": ArrowDownLeft,
-  "LOAN_PAYMENTS": CreditCard,
-  "GENERAL_MERCHANDISE": ShoppingBag,
-  "PERSONAL_CARE": Heart,
-  "GENERAL_SERVICES": Zap,
-  "GOVERNMENT_AND_NON_PROFIT": Home,
-  "HOME_IMPROVEMENT": Home,
-  "BANK_FEES": CreditCard,
+  "FOOD_AND_DRINK": ForkKnifeIcon,
+  "TRANSPORTATION": CarIcon,
+  "TRAVEL": AirplaneTiltIcon,
+  "SHOPPING": ShoppingBagIcon,
+  "ENTERTAINMENT": GameControllerIcon,
+  "RENT_AND_UTILITIES": HouseIcon,
+  "MEDICAL": HeartIcon,
+  "EDUCATION": GraduationCapIcon,
+  "TRANSFER_IN": ArrowDownLeftIcon,
+  "TRANSFER_OUT": MoneyIcon,
+  "INCOME": ArrowDownLeftIcon,
+  "LOAN_PAYMENTS": CreditCardIcon,
+  "GENERAL_MERCHANDISE": ShoppingBagIcon,
+  "PERSONAL_CARE": HeartIcon,
+  "GENERAL_SERVICES": LightningIcon,
+  "GOVERNMENT_AND_NON_PROFIT": HouseIcon,
+  "HOME_IMPROVEMENT": HouseIcon,
+  "BANK_FEES": CreditCardIcon,
 }
 
 function getCategoryIcon(category: string | null | undefined): any {
-  if (!category) return CreditCard
+  if (!category) return CreditCardIcon
   const upperCategory = category.toUpperCase()
-  return categoryIcons[upperCategory] || CreditCard
+  return categoryIcons[upperCategory] || CreditCardIcon
 }
 
 function formatCategory(category: string | null | undefined): string {
@@ -272,10 +272,10 @@ export default function TransactionsPage() {
   }
 
   const getSortIcon = (field: SortField) => {
-    if (sortField !== field) return <ArrowUpDown className="h-4 w-4" />
+    if (sortField !== field) return <ArrowsDownUpIcon className="h-4 w-4" weight="thin" />
     return sortDirection === "asc"
-      ? <ArrowUp className="h-4 w-4" />
-      : <ArrowDown className="h-4 w-4" />
+      ? <ArrowUpIcon className="h-4 w-4" weight="thin" />
+      : <ArrowDownIcon className="h-4 w-4" weight="thin" />
   }
 
   const clearFilters = () => {
@@ -294,7 +294,7 @@ export default function TransactionsPage() {
           <DashboardHeader />
           <main className="container mx-auto px-4 py-8 lg:px-8">
             <div className="flex items-center justify-center py-24">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <SpinnerGapIcon className="h-8 w-8 animate-spin text-primary" weight="thin" />
             </div>
           </main>
         </div>
@@ -310,7 +310,7 @@ export default function TransactionsPage() {
           <DashboardHeader />
           <main className="container mx-auto px-4 py-8 lg:px-8">
             <div className="flex flex-col items-center justify-center py-24 gap-4">
-              <AlertCircle className="h-12 w-12 text-destructive" />
+              <WarningCircleIcon className="h-12 w-12 text-destructive" weight="thin" />
               <p className="text-lg text-muted-foreground">{error}</p>
               <Button asChild>
                 <Link href="/accounts">Back to Accounts</Link>
@@ -333,7 +333,7 @@ export default function TransactionsPage() {
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" asChild className="rounded-xl">
                 <Link href="/accounts">
-                  <ArrowLeft className="h-5 w-5" />
+                  <ArrowLeftIcon className="h-5 w-5" weight="thin" />
                 </Link>
               </Button>
               <div>
@@ -351,12 +351,12 @@ export default function TransactionsPage() {
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Filter className="h-5 w-5 text-muted-foreground" />
+                    <FunnelIcon className="h-5 w-5 text-muted-foreground" weight="thin" />
                     <CardTitle className="text-lg">Filters</CardTitle>
                   </div>
                   {hasActiveFilters && (
                     <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1">
-                      <X className="h-4 w-4" />
+                      <XIcon className="h-4 w-4" weight="thin" />
                       Clear All
                     </Button>
                   )}
@@ -432,7 +432,7 @@ export default function TransactionsPage() {
               <CardContent>
                 {paginatedTransactions.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                    <CreditCard className="h-12 w-12 mb-3" />
+                    <CreditCardIcon className="h-12 w-12 mb-3" weight="thin" />
                     <p className="text-lg">No transactions found</p>
                     {hasActiveFilters && (
                       <p className="text-sm mt-1">Try adjusting your filters</p>
@@ -551,7 +551,7 @@ export default function TransactionsPage() {
                           disabled={currentPage === 1}
                           className="h-8 w-8"
                         >
-                          <ChevronsLeft className="h-4 w-4" />
+                          <CaretDoubleLeftIcon className="h-4 w-4" weight="thin" />
                         </Button>
                         <Button
                           variant="outline"
@@ -560,7 +560,7 @@ export default function TransactionsPage() {
                           disabled={currentPage === 1}
                           className="h-8 w-8"
                         >
-                          <ChevronLeft className="h-4 w-4" />
+                          <CaretLeftIcon className="h-4 w-4" weight="thin" />
                         </Button>
                         <div className="flex items-center gap-1 px-2">
                           <span className="text-sm font-medium">{currentPage}</span>
@@ -574,7 +574,7 @@ export default function TransactionsPage() {
                           disabled={currentPage >= totalPages}
                           className="h-8 w-8"
                         >
-                          <ChevronRight className="h-4 w-4" />
+                          <CaretRightIcon className="h-4 w-4" weight="thin" />
                         </Button>
                         <Button
                           variant="outline"
@@ -583,7 +583,7 @@ export default function TransactionsPage() {
                           disabled={currentPage >= totalPages}
                           className="h-8 w-8"
                         >
-                          <ChevronsRight className="h-4 w-4" />
+                          <CaretDoubleRightIcon className="h-4 w-4" weight="thin" />
                         </Button>
                       </div>
                     </div>

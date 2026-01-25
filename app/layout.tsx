@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { AIPopupProvider } from "@/components/ai-popup-provider"
 import { TransactionSearchProvider } from "@/components/transaction-search-provider"
+import { IconProvider } from "@/components/icon-provider"
 import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
@@ -26,11 +27,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <TransactionSearchProvider>
-          <AIPopupProvider>{children}</AIPopupProvider>
-        </TransactionSearchProvider>
-        <Toaster />
-        <Analytics />
+        <IconProvider>
+          <TransactionSearchProvider>
+            <AIPopupProvider>{children}</AIPopupProvider>
+          </TransactionSearchProvider>
+          <Toaster />
+          <Analytics />
+        </IconProvider>
       </body>
     </html>
   )

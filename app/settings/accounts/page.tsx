@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CreditCard, AlertCircle } from "lucide-react"
+import { CreditCard as CreditCardIcon, WarningCircle as WarningCircleIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlaidLink } from "@/components/plaid-link"
@@ -77,7 +77,7 @@ export default function AccountsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <CreditCard className="h-5 w-5 text-primary" />
+              <CreditCardIcon className="h-5 w-5 text-primary" weight="thin" />
             </div>
             Connected Accounts
           </CardTitle>
@@ -94,7 +94,7 @@ export default function AccountsPage() {
                 >
                   <div className="flex items-center gap-4">
                     <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                      <CreditCard className="h-8 w-8 text-primary" />
+                      <CreditCardIcon className="h-8 w-8 text-primary" weight="thin" />
                     </div>
                     <div>
                       <p className="font-medium text-lg">{account.name}</p>
@@ -109,7 +109,7 @@ export default function AccountsPage() {
           ) : (
             <div className="flex flex-col items-center gap-4 py-8">
               <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <AlertCircle className="h-8 w-8 text-primary" />
+                <WarningCircleIcon className="h-8 w-8 text-primary" weight="thin" />
               </div>
               <p className="text-center text-muted-foreground text-lg">
                 No bank account connected

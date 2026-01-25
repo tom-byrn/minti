@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Target, Loader2, Plus, Trash2, DollarSign } from "lucide-react"
+import { Target as TargetIcon, SpinnerGap as SpinnerGapIcon, Plus as PlusIcon, Trash as TrashIcon, CurrencyDollar as CurrencyDollarIcon } from "@phosphor-icons/react"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -283,7 +283,7 @@ export default function BudgetPage() {
           <DashboardHeader />
           <main className="container mx-auto px-4 py-8 lg:px-8">
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <SpinnerGapIcon className="h-8 w-8 animate-spin text-muted-foreground" weight="thin" />
             </div>
           </main>
         </div>
@@ -309,7 +309,7 @@ export default function BudgetPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Target className="h-5 w-5 text-primary" />
+                    <TargetIcon className="h-5 w-5 text-primary" weight="thin" />
                   </div>
                   Financial Profile
                 </CardTitle>
@@ -373,7 +373,7 @@ export default function BudgetPage() {
                 <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto">
                   {saving ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <SpinnerGapIcon className="mr-2 h-4 w-4 animate-spin" weight="thin" />
                       Saving...
                     </>
                   ) : (
@@ -388,7 +388,7 @@ export default function BudgetPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <DollarSign className="h-5 w-5 text-primary" />
+                    <CurrencyDollarIcon className="h-5 w-5 text-primary" weight="thin" />
                   </div>
                   Monthly Category Budgets
                 </CardTitle>
@@ -414,7 +414,7 @@ export default function BudgetPage() {
                     onClick={handleAddCategory}
                     disabled={!newCategory || savingBudgets}
                   >
-                    <Plus className="h-4 w-4" />
+                    <PlusIcon className="h-4 w-4" weight="thin" />
                   </Button>
                 </div>
 
@@ -464,7 +464,7 @@ export default function BudgetPage() {
                                 onClick={() => handleDeleteBudget(category)}
                                 disabled={savingBudgets}
                               >
-                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <TrashIcon className="h-4 w-4 text-destructive" weight="thin" />
                               </Button>
                             )}
                           </div>
@@ -477,7 +477,7 @@ export default function BudgetPage() {
                 <Button onClick={handleSaveAllBudgets} disabled={savingBudgets} className="w-full sm:w-auto">
                   {savingBudgets ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <SpinnerGapIcon className="mr-2 h-4 w-4 animate-spin" weight="thin" />
                       Saving...
                     </>
                   ) : (

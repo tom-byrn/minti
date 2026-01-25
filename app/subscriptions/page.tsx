@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { AlertCircle, CreditCard, Calendar, TrendingUp, ChevronDown, ChevronUp, RefreshCw } from "lucide-react"
+import { WarningCircle as WarningCircleIcon, CreditCard as CreditCardIcon, Calendar as CalendarIcon, TrendUp as TrendUpIcon, CaretDown as CaretDownIcon, CaretUp as CaretUpIcon, ArrowsClockwise as ArrowsClockwiseIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import type { SubscriptionSummary, DetectedSubscription, BillingPeriod } from "@/lib/subscriptions/types"
 
@@ -48,13 +48,13 @@ function SubscriptionCardSkeleton() {
   )
 }
 
-function SummaryCardSkeleton({ icon: Icon }: { icon: React.ElementType }) {
+function SummaryCardSkeleton({ icon: Icon }: { icon: any }) {
   return (
     <Card className="border-border/50 bg-card/80 backdrop-blur">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <Skeleton className="h-4 w-32" />
         <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Icon className="h-5 w-5 text-primary" />
+          <Icon className="h-5 w-5 text-primary" weight="thin" />
         </div>
       </CardHeader>
       <CardContent>
@@ -84,9 +84,9 @@ function SubscriptionsPageSkeleton() {
 
             {/* Summary Cards */}
             <div className="grid gap-5 sm:grid-cols-3">
-              <SummaryCardSkeleton icon={CreditCard} />
-              <SummaryCardSkeleton icon={Calendar} />
-              <SummaryCardSkeleton icon={TrendingUp} />
+              <SummaryCardSkeleton icon={CreditCardIcon} />
+              <SummaryCardSkeleton icon={CalendarIcon} />
+              <SummaryCardSkeleton icon={TrendUpIcon} />
             </div>
 
             {/* Subscriptions List */}
@@ -256,7 +256,7 @@ export default function SubscriptionsPage() {
           <DashboardHeader />
           <main className="container mx-auto px-4 py-8 lg:px-8">
             <div className="flex flex-col items-center justify-center py-16 gap-4">
-              <AlertCircle className="h-12 w-12 text-destructive" />
+              <WarningCircleIcon className="h-12 w-12 text-destructive" weight="thin" />
               <p className="text-center text-lg text-muted-foreground">{error}</p>
               <Button onClick={() => fetchSubscriptions()} variant="outline">
                 Try again
@@ -287,7 +287,7 @@ export default function SubscriptionsPage() {
                   disabled={refreshing}
                   className="gap-2"
                 >
-                  <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+                  <ArrowsClockwiseIcon className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} weight="thin" />
                   Refresh
                 </Button>
               </div>
@@ -298,7 +298,7 @@ export default function SubscriptionsPage() {
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">Active Subscriptions</CardTitle>
                     <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <CreditCard className="h-5 w-5 text-primary" />
+                      <CreditCardIcon className="h-5 w-5 text-primary" weight="thin" />
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -313,7 +313,7 @@ export default function SubscriptionsPage() {
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Total</CardTitle>
                     <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <Calendar className="h-5 w-5 text-primary" />
+                      <CalendarIcon className="h-5 w-5 text-primary" weight="thin" />
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -328,7 +328,7 @@ export default function SubscriptionsPage() {
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">Yearly Total</CardTitle>
                     <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <TrendingUp className="h-5 w-5 text-primary" />
+                      <TrendUpIcon className="h-5 w-5 text-primary" weight="thin" />
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -344,7 +344,7 @@ export default function SubscriptionsPage() {
               {data.subscriptions.length === 0 ? (
                 <Card className="border-border/50 bg-card/80 backdrop-blur shadow-lg">
                   <CardContent className="flex flex-col items-center justify-center py-16">
-                    <CreditCard className="h-16 w-16 text-muted-foreground/50 mb-4" />
+                    <CreditCardIcon className="h-16 w-16 text-muted-foreground/50 mb-4" weight="thin" />
                     <h3 className="text-lg font-semibold mb-2">No subscriptions detected</h3>
                     <p className="text-muted-foreground text-center max-w-md">
                       We couldn't find any recurring payments in your transaction history.
@@ -386,9 +386,9 @@ export default function SubscriptionsPage() {
                       </div>
                       <Button variant="ghost" size="sm">
                         {lowConfidenceOpen ? (
-                          <ChevronUp className="h-4 w-4" />
+                          <CaretUpIcon className="h-4 w-4" weight="thin" />
                         ) : (
-                          <ChevronDown className="h-4 w-4" />
+                          <CaretDownIcon className="h-4 w-4" weight="thin" />
                         )}
                       </Button>
                     </div>

@@ -2,23 +2,23 @@
 
 import { useEffect, useState } from "react"
 import {
-  ArrowDownLeft,
-  Coffee,
-  Home,
-  ShoppingBag,
-  Smartphone,
-  Zap,
-  Car,
-  Plane,
-  Utensils,
-  Heart,
-  Gamepad2,
-  GraduationCap,
-  Banknote,
-  CreditCard,
-  Loader2,
-  AlertCircle,
-} from "lucide-react"
+  ArrowDownLeft as ArrowDownLeftIcon,
+  Coffee as CoffeeIcon,
+  House as HouseIcon,
+  ShoppingBag as ShoppingBagIcon,
+  DeviceMobile as DeviceMobileIcon,
+  Lightning as LightningIcon,
+  Car as CarIcon,
+  AirplaneTilt as AirplaneTiltIcon,
+  ForkKnife as ForkKnifeIcon,
+  Heart as HeartIcon,
+  GameController as GameControllerIcon,
+  GraduationCap as GraduationCapIcon,
+  Money as MoneyIcon,
+  CreditCard as CreditCardIcon,
+  SpinnerGap as SpinnerGapIcon,
+  WarningCircle as WarningCircleIcon,
+} from "@phosphor-icons/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -48,30 +48,30 @@ interface Transaction {
 }
 
 const categoryIcons: Record<string, any> = {
-  "FOOD_AND_DRINK": Utensils,
-  "TRANSPORTATION": Car,
-  "TRAVEL": Plane,
-  "SHOPPING": ShoppingBag,
-  "ENTERTAINMENT": Gamepad2,
-  "RENT_AND_UTILITIES": Home,
-  "MEDICAL": Heart,
-  "EDUCATION": GraduationCap,
-  "TRANSFER_IN": ArrowDownLeft,
-  "TRANSFER_OUT": Banknote,
-  "INCOME": ArrowDownLeft,
-  "LOAN_PAYMENTS": CreditCard,
-  "GENERAL_MERCHANDISE": ShoppingBag,
-  "PERSONAL_CARE": Heart,
-  "GENERAL_SERVICES": Zap,
-  "GOVERNMENT_AND_NON_PROFIT": Home,
-  "HOME_IMPROVEMENT": Home,
-  "BANK_FEES": CreditCard,
+  "FOOD_AND_DRINK": ForkKnifeIcon,
+  "TRANSPORTATION": CarIcon,
+  "TRAVEL": AirplaneTiltIcon,
+  "SHOPPING": ShoppingBagIcon,
+  "ENTERTAINMENT": GameControllerIcon,
+  "RENT_AND_UTILITIES": HouseIcon,
+  "MEDICAL": HeartIcon,
+  "EDUCATION": GraduationCapIcon,
+  "TRANSFER_IN": ArrowDownLeftIcon,
+  "TRANSFER_OUT": MoneyIcon,
+  "INCOME": ArrowDownLeftIcon,
+  "LOAN_PAYMENTS": CreditCardIcon,
+  "GENERAL_MERCHANDISE": ShoppingBagIcon,
+  "PERSONAL_CARE": HeartIcon,
+  "GENERAL_SERVICES": LightningIcon,
+  "GOVERNMENT_AND_NON_PROFIT": HouseIcon,
+  "HOME_IMPROVEMENT": HouseIcon,
+  "BANK_FEES": CreditCardIcon,
 }
 
 function getCategoryIcon(category: string | null | undefined): any {
-  if (!category) return CreditCard
+  if (!category) return CreditCardIcon
   const upperCategory = category.toUpperCase()
-  return categoryIcons[upperCategory] || CreditCard
+  return categoryIcons[upperCategory] || CreditCardIcon
 }
 
 function formatCategory(category: string | null | undefined): string {
@@ -157,7 +157,7 @@ export function TransactionsList() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <SpinnerGapIcon className="h-8 w-8 animate-spin text-primary" weight="thin" />
           </div>
         </CardContent>
       </Card>
@@ -173,7 +173,7 @@ export function TransactionsList() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
-            <AlertCircle className="h-8 w-8 text-muted-foreground" />
+            <WarningCircleIcon className="h-8 w-8 text-muted-foreground" weight="thin" />
             <p className="text-muted-foreground">{error}</p>
           </div>
         </CardContent>
@@ -190,7 +190,7 @@ export function TransactionsList() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-12 gap-3">
-            <CreditCard className="h-8 w-8 text-muted-foreground" />
+            <CreditCardIcon className="h-8 w-8 text-muted-foreground" weight="thin" />
             <p className="text-muted-foreground">No transactions found</p>
           </div>
         </CardContent>

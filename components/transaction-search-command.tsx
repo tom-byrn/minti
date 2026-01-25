@@ -11,47 +11,47 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import {
-  ArrowDownLeft,
-  Car,
-  Plane,
-  ShoppingBag,
-  Gamepad2,
-  Home,
-  Heart,
-  GraduationCap,
-  Banknote,
-  CreditCard,
-  Utensils,
-  Zap,
-  Loader2,
-} from "lucide-react"
+  ArrowDownLeft as ArrowDownLeftIcon,
+  Car as CarIcon,
+  AirplaneTilt as AirplaneTiltIcon,
+  ShoppingBag as ShoppingBagIcon,
+  GameController as GameControllerIcon,
+  House as HouseIcon,
+  Heart as HeartIcon,
+  GraduationCap as GraduationCapIcon,
+  Money as MoneyIcon,
+  CreditCard as CreditCardIcon,
+  ForkKnife as ForkKnifeIcon,
+  Lightning as LightningIcon,
+  SpinnerGap as SpinnerGapIcon,
+} from "@phosphor-icons/react"
 import type { SearchableTransaction } from "@/app/api/plaid/search/route"
 
-const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  "FOOD_AND_DRINK": Utensils,
-  "TRANSPORTATION": Car,
-  "TRAVEL": Plane,
-  "SHOPPING": ShoppingBag,
-  "ENTERTAINMENT": Gamepad2,
-  "RENT_AND_UTILITIES": Home,
-  "MEDICAL": Heart,
-  "EDUCATION": GraduationCap,
-  "TRANSFER_IN": ArrowDownLeft,
-  "TRANSFER_OUT": Banknote,
-  "INCOME": ArrowDownLeft,
-  "LOAN_PAYMENTS": CreditCard,
-  "GENERAL_MERCHANDISE": ShoppingBag,
-  "PERSONAL_CARE": Heart,
-  "GENERAL_SERVICES": Zap,
-  "GOVERNMENT_AND_NON_PROFIT": Home,
-  "HOME_IMPROVEMENT": Home,
-  "BANK_FEES": CreditCard,
+const categoryIcons: Record<string, any> = {
+  "FOOD_AND_DRINK": ForkKnifeIcon,
+  "TRANSPORTATION": CarIcon,
+  "TRAVEL": AirplaneTiltIcon,
+  "SHOPPING": ShoppingBagIcon,
+  "ENTERTAINMENT": GameControllerIcon,
+  "RENT_AND_UTILITIES": HouseIcon,
+  "MEDICAL": HeartIcon,
+  "EDUCATION": GraduationCapIcon,
+  "TRANSFER_IN": ArrowDownLeftIcon,
+  "TRANSFER_OUT": MoneyIcon,
+  "INCOME": ArrowDownLeftIcon,
+  "LOAN_PAYMENTS": CreditCardIcon,
+  "GENERAL_MERCHANDISE": ShoppingBagIcon,
+  "PERSONAL_CARE": HeartIcon,
+  "GENERAL_SERVICES": LightningIcon,
+  "GOVERNMENT_AND_NON_PROFIT": HouseIcon,
+  "HOME_IMPROVEMENT": HouseIcon,
+  "BANK_FEES": CreditCardIcon,
 }
 
-function getCategoryIcon(category: string | null | undefined): React.ComponentType<{ className?: string }> {
-  if (!category) return CreditCard
+function getCategoryIcon(category: string | null | undefined): any {
+  if (!category) return CreditCardIcon
   const upperCategory = category.toUpperCase()
-  return categoryIcons[upperCategory] || CreditCard
+  return categoryIcons[upperCategory] || CreditCardIcon
 }
 
 function formatDate(dateString: string): string {
@@ -168,7 +168,7 @@ export function TransactionSearchCommand({ open, onOpenChange }: TransactionSear
       <CommandList className="max-h-[500px]">
         {loading && (
           <div className="flex items-center justify-center py-6">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <SpinnerGapIcon className="h-6 w-6 animate-spin text-muted-foreground" weight="thin" />
           </div>
         )}
 
@@ -202,7 +202,7 @@ export function TransactionSearchCommand({ open, onOpenChange }: TransactionSear
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                      <Icon className="h-4 w-4 text-primary" />
+                      <Icon className="h-4 w-4 text-primary" weight="thin" />
                     </div>
                     <div className="flex flex-col min-w-0">
                       <span className="font-medium truncate">

@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronLeft } from "lucide-react"
+import { CaretLeft as CaretLeftIcon } from "@phosphor-icons/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -21,7 +21,7 @@ export default function SettingsLayout({
         <main className="container mx-auto px-4 py-8 lg:px-8">
           <div className="mb-6">
             <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
-              <ChevronLeft className="h-4 w-4" />
+              <CaretLeftIcon className="h-4 w-4" weight="thin" />
               Back to Dashboard
             </Link>
           </div>

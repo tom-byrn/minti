@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { User, Camera, Loader2 } from "lucide-react"
+import { User as UserIcon, Camera as CameraIcon, SpinnerGap as SpinnerGapIcon } from "@phosphor-icons/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -156,7 +156,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <SpinnerGapIcon className="h-8 w-8 animate-spin text-muted-foreground" weight="thin" />
       </div>
     )
   }
@@ -172,7 +172,7 @@ export default function ProfilePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <User className="h-5 w-5 text-primary" />
+              <UserIcon className="h-5 w-5 text-primary" weight="thin" />
             </div>
             Personal Information
           </CardTitle>
@@ -193,9 +193,9 @@ export default function ProfilePage() {
                 className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
                 {uploading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <SpinnerGapIcon className="h-4 w-4 animate-spin" weight="thin" />
                 ) : (
-                  <Camera className="h-4 w-4" />
+                  <CameraIcon className="h-4 w-4" weight="thin" />
                 )}
               </button>
               <input
@@ -263,7 +263,7 @@ export default function ProfilePage() {
           <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto">
             {saving ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <SpinnerGapIcon className="mr-2 h-4 w-4 animate-spin" weight="thin" />
                 Saving...
               </>
             ) : (

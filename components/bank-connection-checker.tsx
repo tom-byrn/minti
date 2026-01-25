@@ -2,7 +2,7 @@
 
 import { useBankConnection } from "@/hooks/use-bank-connection"
 import { ReconnectBankCard } from "@/components/reconnect-bank-card"
-import { Loader2 } from "lucide-react"
+import { SpinnerGap as SpinnerGapIcon } from "@phosphor-icons/react"
 
 export function BankConnectionChecker({ children }: { children: React.ReactNode }) {
   const { isConnected, isLoading, error, checkConnection } = useBankConnection()
@@ -10,7 +10,7 @@ export function BankConnectionChecker({ children }: { children: React.ReactNode 
   if (isLoading) {
     return (
       <div className="flex h-[50vh] w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <SpinnerGapIcon className="h-8 w-8 animate-spin text-muted-foreground" weight="thin" />
       </div>
     )
   }

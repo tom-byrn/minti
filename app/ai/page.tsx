@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { Bot, MessageSquarePlus, Send, Trash2 } from "lucide-react"
+import { Robot as RobotIcon, ChatCircleDots as ChatCircleDotsIcon, PaperPlaneTilt as PaperPlaneTiltIcon, Trash as TrashIcon } from "@phosphor-icons/react"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -73,7 +73,7 @@ export default function AIPage() {
               className="w-full gap-2"
               variant="outline"
             >
-              <MessageSquarePlus className="h-4 w-4" />
+              <ChatCircleDotsIcon className="h-4 w-4" weight="thin" />
               New Chat
             </Button>
           </div>
@@ -115,7 +115,7 @@ export default function AIPage() {
                         deleteSession(session.id)
                       }}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <TrashIcon className="h-3 w-3" weight="thin" />
                     </Button>
                   </div>
                 ))}
@@ -135,7 +135,7 @@ export default function AIPage() {
                   <div className="flex gap-4">
                     <Avatar className="h-10 w-10 flex-shrink-0">
                       <AvatarFallback className="bg-primary/10">
-                        <Bot className="h-5 w-5 text-primary" />
+                        <RobotIcon className="h-5 w-5 text-primary" weight="thin" />
                       </AvatarFallback>
                     </Avatar>
                     <div className="rounded-lg bg-muted px-4 py-3 text-foreground">
@@ -181,7 +181,7 @@ export default function AIPage() {
                   {message.role === "assistant" && (
                     <Avatar className="h-10 w-10 flex-shrink-0">
                       <AvatarFallback className="bg-primary/10">
-                        <Bot className="h-5 w-5 text-primary" />
+                        <RobotIcon className="h-5 w-5 text-primary" weight="thin" />
                       </AvatarFallback>
                     </Avatar>
                   )}
@@ -214,7 +214,7 @@ export default function AIPage() {
                 <div className="flex gap-4">
                   <Avatar className="h-10 w-10 flex-shrink-0">
                     <AvatarFallback className="bg-primary/10">
-                      <Bot className="h-5 w-5 text-primary" />
+                      <RobotIcon className="h-5 w-5 text-primary" weight="thin" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex items-center gap-1 rounded-lg bg-muted px-4 py-3">
@@ -244,7 +244,7 @@ export default function AIPage() {
                 disabled={isLoading || !input.trim()}
                 size="icon"
               >
-                <Send className="h-4 w-4" />
+                <PaperPlaneTiltIcon className="h-4 w-4" weight="thin" />
               </Button>
             </form>
           </div>

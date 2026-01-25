@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { Bot, ChevronLeft, MessageSquarePlus, Send, Sparkles, Trash2, X } from "lucide-react"
+import { Robot as RobotIcon, CaretLeft as CaretLeftIcon, ChatCircleDots as ChatCircleDotsIcon, PaperPlaneTilt as PaperPlaneTiltIcon, Sparkle as SparkleIcon, Trash as TrashIcon, X as XIcon } from "@phosphor-icons/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -78,11 +78,11 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                     className="h-8 w-8"
                     onClick={() => setShowSessions(false)}
                   >
-                    <ChevronLeft className="h-4 w-4" />
+                    <CaretLeftIcon className="h-4 w-4" weight="thin" />
                   </Button>
                 ) : (
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                    <Sparkles className="h-6 w-6 text-primary" />
+                    <SparkleIcon className="h-6 w-6 text-primary" weight="thin" />
                   </div>
                 )}
                 <div>
@@ -102,11 +102,11 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                     className="h-8 w-8"
                     onClick={() => setShowSessions(true)}
                   >
-                    <MessageSquarePlus className="h-4 w-4" />
+                    <ChatCircleDotsIcon className="h-4 w-4" weight="thin" />
                   </Button>
                 )}
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
-                  <X className="h-4 w-4" />
+                  <XIcon className="h-4 w-4" weight="thin" />
                 </Button>
               </div>
             </div>
@@ -126,7 +126,7 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                     variant="outline"
                     size="sm"
                   >
-                    <MessageSquarePlus className="h-4 w-4" />
+                    <ChatCircleDotsIcon className="h-4 w-4" weight="thin" />
                     New Chat
                   </Button>
                 </div>
@@ -171,7 +171,7 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                                 deleteSession(session.id)
                               }}
                             >
-                              <Trash2 className="h-3 w-3" />
+                              <TrashIcon className="h-3 w-3" weight="thin" />
                             </Button>
                           </div>
                         ))}
@@ -189,7 +189,7 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                       <div className="flex gap-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="bg-primary/10">
-                            <Bot className="h-4 w-4 text-primary" />
+                            <RobotIcon className="h-4 w-4 text-primary" weight="thin" />
                           </AvatarFallback>
                         </Avatar>
                         <div className="max-w-[85%] rounded-lg bg-muted px-4 py-2 text-foreground">
@@ -211,7 +211,7 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                         {message.role === "assistant" && (
                           <Avatar className="h-8 w-8">
                             <AvatarFallback className="bg-primary/10">
-                              <Bot className="h-4 w-4 text-primary" />
+                              <RobotIcon className="h-4 w-4 text-primary" weight="thin" />
                             </AvatarFallback>
                           </Avatar>
                         )}
@@ -241,7 +241,7 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                       <div className="flex gap-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="bg-primary/10">
-                            <Bot className="h-4 w-4 text-primary" />
+                            <RobotIcon className="h-4 w-4 text-primary" weight="thin" />
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex items-center gap-1 rounded-lg bg-muted px-4 py-2">
@@ -283,7 +283,7 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                       disabled={isLoading}
                     />
                     <Button type="submit" disabled={isLoading || !input.trim()} size="icon">
-                      <Send className="h-4 w-4" />
+                      <PaperPlaneTiltIcon className="h-4 w-4" weight="thin" />
                     </Button>
                   </form>
                 </div>

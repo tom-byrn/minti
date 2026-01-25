@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Bot, Send, Sparkles } from "lucide-react"
+import { Robot as RobotIcon, PaperPlaneTilt as PaperPlaneTiltIcon, Sparkle as SparkleIcon } from "@phosphor-icons/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -65,7 +65,7 @@ export function AIAssistant() {
       <CardHeader className="border-b border-border">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-            <Sparkles className="h-4 w-4 text-primary-foreground" />
+            <SparkleIcon className="h-4 w-4 text-primary-foreground" weight="thin" />
           </div>
           <div>
             <CardTitle className="text-base">AI Financial Assistant</CardTitle>
@@ -85,7 +85,7 @@ export function AIAssistant() {
                 {message.role === "assistant" && (
                   <Avatar className="h-8 w-8">
                     <AvatarFallback className="bg-primary text-primary-foreground">
-                      <Bot className="h-4 w-4" />
+                      <RobotIcon className="h-4 w-4" weight="thin" />
                     </AvatarFallback>
                   </Avatar>
                 )}
@@ -107,7 +107,7 @@ export function AIAssistant() {
               <div className="flex gap-3">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-primary text-primary-foreground">
-                    <Bot className="h-4 w-4" />
+                    <RobotIcon className="h-4 w-4" weight="thin" />
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex items-center gap-1 rounded-lg bg-muted px-4 py-2">
@@ -148,7 +148,7 @@ export function AIAssistant() {
             disabled={isLoading}
           />
           <Button onClick={handleSend} disabled={isLoading || !input.trim()} size="icon">
-            <Send className="h-4 w-4" />
+            <PaperPlaneTiltIcon className="h-4 w-4" weight="thin" />
           </Button>
         </div>
       </CardContent>

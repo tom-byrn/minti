@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { CreditCard, DollarSign, TrendingUp } from "lucide-react"
+import { CreditCard as CreditCardIcon, CurrencyDollar as CurrencyDollarIcon, TrendUp as TrendUpIcon } from "@phosphor-icons/react"
 import { Card, CardContent } from "@/components/ui/card"
 import { ReconnectBankCard } from "@/components/reconnect-bank-card"
 
@@ -56,7 +56,7 @@ export function AccountsOverview() {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}`,
-            icon: DollarSign,
+            icon: CurrencyDollarIcon,
             color: "text-primary",
           },
           ...data.accounts.map((account: any) => ({
@@ -65,7 +65,7 @@ export function AccountsOverview() {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             }) || "0.00"}`,
-            icon: account.type === "credit" ? CreditCard : account.subtype === "savings" ? TrendingUp : DollarSign,
+            icon: account.type === "credit" ? CreditCardIcon : account.subtype === "savings" ? TrendUpIcon : CurrencyDollarIcon,
             color: account.type === "credit" ? "text-destructive" : account.subtype === "savings" ? "text-chart-2" : "text-accent",
           })),
         ]
@@ -176,7 +176,7 @@ export function AccountsOverview() {
                         <div>
                           <p className="font-medium text-foreground">{account.name}</p>
                           <p className="text-xs text-muted-foreground capitalize">
-                            {account.icon === CreditCard ? 'Credit' : account.icon === TrendingUp ? 'Savings' : 'Checking'}
+                            {account.icon === CreditCardIcon ? 'Credit' : account.icon === TrendUpIcon ? 'Savings' : 'Checking'}
                           </p>
                         </div>
                       </div>

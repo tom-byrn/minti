@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { usePlaidLink } from "react-plaid-link"
 import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
+import { SpinnerGap as SpinnerGapIcon } from "@phosphor-icons/react"
 
 interface PlaidLinkProps {
   onSuccess?: () => void
@@ -74,7 +74,7 @@ export function PlaidLink({ onSuccess }: PlaidLinkProps) {
     >
       {loading ? (
         <>
-          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          <SpinnerGapIcon className="mr-2 h-5 w-5 animate-spin" weight="thin" />
           Connecting...
         </>
       ) : (

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { Loader2, AlertCircle } from "lucide-react"
+import { SpinnerGap as SpinnerGapIcon, WarningCircle as WarningCircleIcon } from "@phosphor-icons/react"
 
 interface PlaidTransaction {
   transaction_id: string
@@ -120,7 +120,7 @@ export function SpendingChart() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-[320px]">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <SpinnerGapIcon className="h-8 w-8 animate-spin text-primary" weight="thin" />
           </div>
         </CardContent>
       </Card>
@@ -136,7 +136,7 @@ export function SpendingChart() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center h-[320px] gap-3">
-            <AlertCircle className="h-8 w-8 text-muted-foreground" />
+            <WarningCircleIcon className="h-8 w-8 text-muted-foreground" weight="thin" />
             <p className="text-muted-foreground">{error}</p>
           </div>
         </CardContent>
