@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import type { UserProfile } from "@/lib/database.types"
@@ -155,8 +156,57 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <SpinnerGapIcon className="h-8 w-8 animate-spin text-muted-foreground" weight="thin" />
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div>
+          <Skeleton className="h-8 w-20 mb-2" />
+          <Skeleton className="h-5 w-52" />
+        </div>
+
+        {/* Card skeleton */}
+        <Card className="border-border/50 bg-card/80 backdrop-blur shadow-lg">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-10 w-10 rounded-xl" />
+              <Skeleton className="h-6 w-40" />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Avatar skeleton */}
+            <div className="flex items-center gap-6">
+              <Skeleton className="h-24 w-24 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-28" />
+                <Skeleton className="h-4 w-48" />
+              </div>
+            </div>
+
+            {/* Form fields skeleton */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+
+            {/* Save button skeleton */}
+            <Skeleton className="h-10 w-28" />
+          </CardContent>
+        </Card>
       </div>
     )
   }

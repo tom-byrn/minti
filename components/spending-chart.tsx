@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { SpinnerGap as SpinnerGapIcon, WarningCircle as WarningCircleIcon } from "@phosphor-icons/react"
+import { WarningCircle as WarningCircleIcon } from "@phosphor-icons/react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface PlaidTransaction {
   transaction_id: string
@@ -119,8 +120,30 @@ export function SpendingChart() {
           <CardDescription className="text-base">Your income and spending trends</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center h-[320px]">
-            <SpinnerGapIcon className="h-8 w-8 animate-spin text-primary" weight="thin" />
+          <div className="h-[320px] flex flex-col">
+            {/* Legend skeleton */}
+            <div className="flex items-center gap-6 mb-4">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-3 w-3 rounded-full" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-3 w-3 rounded-full" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+            </div>
+            {/* Chart area skeleton */}
+            <div className="flex-1 flex items-end gap-4 pb-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                  <Skeleton
+                    className="w-full rounded-t"
+                    style={{ height: `${Math.random() * 60 + 40}%` }}
+                  />
+                  <Skeleton className="h-3 w-8" />
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>

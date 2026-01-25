@@ -5,7 +5,6 @@ import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { DashboardHeader } from "@/components/dashboard-header"
 import {
   ArrowLeft as ArrowLeftIcon,
-  SpinnerGap as SpinnerGapIcon,
   WarningCircle as WarningCircleIcon,
   CaretLeft as CaretLeftIcon,
   CaretRight as CaretRightIcon,
@@ -48,6 +47,7 @@ import {
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
 
 interface PlaidTransaction {
@@ -293,8 +293,63 @@ export default function TransactionsPage() {
         <div className="relative z-10">
           <DashboardHeader />
           <main className="container mx-auto px-4 py-8 lg:px-8">
-            <div className="flex items-center justify-center py-24">
-              <SpinnerGapIcon className="h-8 w-8 animate-spin text-primary" weight="thin" />
+            <div className="space-y-6">
+              {/* Header skeleton */}
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10 rounded-xl" />
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-64" />
+                  <Skeleton className="h-5 w-32" />
+                </div>
+              </div>
+
+              {/* Filters skeleton */}
+              <Card className="border-border/50 bg-card/80 backdrop-blur shadow-sm">
+                <CardHeader className="pb-4">
+                  <Skeleton className="h-5 w-16" />
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-4">
+                    <Skeleton className="h-10 flex-1 min-w-[200px]" />
+                    <Skeleton className="h-10 w-[180px]" />
+                    <Skeleton className="h-10 w-[150px]" />
+                    <Skeleton className="h-10 w-[130px]" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Table skeleton */}
+              <Card className="border-border/50 bg-card/80 backdrop-blur shadow-sm">
+                <CardHeader>
+                  <Skeleton className="h-7 w-32" />
+                  <Skeleton className="h-4 w-24 mt-1" />
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-xl border border-border/50 overflow-hidden">
+                    {/* Table header */}
+                    <div className="bg-muted/30 p-4 flex gap-4">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 flex-1" />
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                    {/* Table rows */}
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div key={i} className="p-4 flex items-center gap-4 border-t border-border/50">
+                        <Skeleton className="h-4 w-20" />
+                        <div className="flex-1 flex items-center gap-3">
+                          <Skeleton className="h-10 w-10 rounded-xl" />
+                          <Skeleton className="h-4 w-32" />
+                        </div>
+                        <Skeleton className="h-5 w-20 rounded-full" />
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-5 w-16 rounded-full" />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </main>
         </div>

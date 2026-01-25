@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   ArrowDownLeft as ArrowDownLeftIcon,
   Car as CarIcon,
@@ -35,7 +36,6 @@ import {
   CreditCard as CreditCardIcon,
   ForkKnife as ForkKnifeIcon,
   Lightning as LightningIcon,
-  SpinnerGap as SpinnerGapIcon,
   Funnel as FunnelIcon,
   CaretDown as CaretDownIcon,
   CaretLeft as CaretLeftIcon,
@@ -464,8 +464,17 @@ export function TransactionSearchCommand({ open, onOpenChange }: TransactionSear
 
       <CommandList className="max-h-[400px]">
         {loading && (
-          <div className="flex items-center justify-center py-6">
-            <SpinnerGapIcon className="h-6 w-6 animate-spin text-muted-foreground" weight="thin" />
+          <div className="p-2 space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-3 rounded-lg p-3">
+                <Skeleton className="h-10 w-10 rounded-xl" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+                <Skeleton className="h-5 w-16" />
+              </div>
+            ))}
           </div>
         )}
 

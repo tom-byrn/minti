@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import type { BudgetProfile, CategoryBudget } from "@/lib/database.types"
@@ -282,8 +283,72 @@ export default function BudgetPage() {
         <div className="relative z-10">
           <DashboardHeader />
           <main className="container mx-auto px-4 py-8 lg:px-8">
-            <div className="flex items-center justify-center py-12">
-              <SpinnerGapIcon className="h-8 w-8 animate-spin text-muted-foreground" weight="thin" />
+            <div className="space-y-6">
+              {/* Header skeleton */}
+              <div className="space-y-2">
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-5 w-96" />
+              </div>
+
+              {/* Financial Profile card skeleton */}
+              <Card className="border-border/50 bg-card/80 backdrop-blur shadow-lg">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-10 w-10 rounded-xl" />
+                    <Skeleton className="h-6 w-36" />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Occupation field */}
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                  {/* Income fields */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  </div>
+                  {/* Goals textarea */}
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-36" />
+                    <Skeleton className="h-28 w-full" />
+                  </div>
+                  {/* Save button */}
+                  <Skeleton className="h-10 w-28" />
+                </CardContent>
+              </Card>
+
+              {/* Category Budgets card skeleton */}
+              <Card className="border-border/50 bg-card/80 backdrop-blur shadow-lg">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-10 w-10 rounded-xl" />
+                    <Skeleton className="h-6 w-48" />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-end gap-4 p-4 rounded-lg bg-muted/30">
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                      <div className="w-32 space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                      <Skeleton className="h-10 w-10" />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
             </div>
           </main>
         </div>

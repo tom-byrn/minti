@@ -16,12 +16,12 @@ import {
   GraduationCap as GraduationCapIcon,
   Money as MoneyIcon,
   CreditCard as CreditCardIcon,
-  SpinnerGap as SpinnerGapIcon,
   WarningCircle as WarningCircleIcon,
 } from "@phosphor-icons/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface PlaidTransaction {
   transaction_id: string
@@ -156,8 +156,19 @@ export function TransactionsList() {
           <CardDescription className="text-base">Your latest account activity and transactions</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center py-12">
-            <SpinnerGapIcon className="h-8 w-8 animate-spin text-primary" weight="thin" />
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-center justify-between rounded-xl border border-border/50 p-4">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-16 w-16 rounded-2xl" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-6 w-20" />
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>

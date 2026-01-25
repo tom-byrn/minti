@@ -7,7 +7,6 @@ import {
   CreditCard as CreditCardIcon,
   Wallet as WalletIcon,
   TrendUp as TrendUpIcon,
-  SpinnerGap as SpinnerGapIcon,
   Plus as PlusIcon,
   ArrowsClockwise as ArrowsClockwiseIcon,
   CaretRight as CaretRightIcon,
@@ -38,6 +37,7 @@ import {
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { BankConnectionChecker } from "@/components/bank-connection-checker"
 import { ReconnectBankCard } from "@/components/reconnect-bank-card"
 
@@ -544,8 +544,19 @@ export default function AccountsPage() {
               <div className="flex-1 overflow-hidden">
                 <h3 className="font-medium mb-3">Recent Transactions</h3>
                 {loadingTransactions ? (
-                  <div className="flex items-center justify-center py-8">
-                    <SpinnerGapIcon className="h-6 w-6 animate-spin text-primary" weight="thin" />
+                  <div className="space-y-2">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="flex items-center justify-between rounded-lg border border-border/50 p-3">
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="h-16 w-16 rounded-2xl" />
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-28" />
+                            <Skeleton className="h-3 w-16" />
+                          </div>
+                        </div>
+                        <Skeleton className="h-5 w-16" />
+                      </div>
+                    ))}
                   </div>
                 ) : accountTransactions.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">

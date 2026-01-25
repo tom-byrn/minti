@@ -1,88 +1,66 @@
-# Minti - Personal Finance Dashboard
+# Minti
 
-A beautiful, nature-inspired personal finance dashboard built with Next.js, featuring Plaid integration for real-time bank account data and Supabase authentication.
+A personal finance dashboard with AI-powered insights, bank account integration, and budget tracking.
 
 ## Features
 
-- **User Authentication** - Secure password-based authentication with Supabase
-- **Bank Account Integration** - Connect your bank accounts via Plaid
-- **Real-time Balance Tracking** - View your account balances in real-time
-- **Transaction History** - See recent transactions from your connected accounts
-- **Financial Overview** - Visualize income and spending trends
-- **Studio Ghibli Theme** - Soft, nature-inspired design with pastel green colors
+- **Bank Account Integration** - Connect accounts via Plaid with secure token storage
+- **Real-time Balances** - View balances and transactions across all connected accounts
+- **AI Financial Assistant** - Chat with Claude for personalized financial advice
+- **Budget Tracking** - Set monthly category budgets and track spending
+- **Analytics Dashboard** - Visualize income, spending trends, and category breakdowns
+- **Subscription Detection** - Automatically identify recurring charges
 
-## Setup Guide
+## Quick Start
 
-### Prerequisites
-
-1. **Supabase Account**
-   - Sign up at [https://supabase.com](https://supabase.com)
-   - Create a new project
-   - Get your API credentials from Project Settings > API
-
-2. **Plaid Account** (Optional, for bank integration)
-   - Sign up at [https://dashboard.plaid.com/signup](https://dashboard.plaid.com/signup)
-   - Get your API credentials from [Team Keys](https://dashboard.plaid.com/team/keys)
-
-### Installation
-
-1. **Install dependencies**
+1. **Clone and install**
    ```bash
+   git clone https://github.com/yourusername/minti.git
+   cd minti
    pnpm install
    ```
 
-2. **Configure environment variables**
+2. **Configure environment**
    ```bash
    cp .env.local.example .env.local
    ```
+   Edit `.env.local` with your API keys (see Environment Variables below).
 
-   Then update `.env.local` with your credentials:
-   ```env
-   # Supabase (Required)
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+3. **Set up Supabase database**
+   - Create a project at [supabase.com](https://supabase.com)
+   - Run the SQL from `supabase/schema.sql` in the SQL Editor
+   - Add `http://localhost:3000/auth/callback` to Authentication > URL Configuration
 
-   # Plaid (Optional)
-   PLAID_CLIENT_ID=your_client_id_here
-   PLAID_SECRET=your_secret_here
-   PLAID_ENV=sandbox
-   ```
-
-3. **Set up Supabase Authentication**
-
-   In your Supabase project dashboard:
-   - Go to Authentication > URL Configuration
-   - Add `http://localhost:3000/auth/callback` to the Redirect URLs
-
-4. **Start the development server**
+4. **Start development server**
    ```bash
    pnpm dev
    ```
 
-5. **Open the app**
+5. Open [http://localhost:3000](http://localhost:3000)
 
-   Visit [http://localhost:3000](http://localhost:3000) and create an account!
+## Environment Variables
 
-## Usage
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
+| `NEXT_PUBLIC_SITE_URL` | Your app URL (e.g., `http://localhost:3000`) | Yes |
+| `PLAID_CLIENT_ID` | Plaid client ID | Yes |
+| `PLAID_SECRET` | Plaid secret key | Yes |
+| `PLAID_ENV` | `sandbox` or `production` | Yes |
+| `ANTHROPIC_API_KEY` | Anthropic API key for Claude | Yes |
 
-### Authentication
+## Supabase Setup
 
-- **Sign Up**: Create a new account at `/signup`
-- **Sign In**: Log in to your account at `/login`
-- **Sign Out**: Click your avatar in the header and select "Log out"
-
-### Connecting Bank Accounts
-
-1. Once logged in, click "Connect Bank Account"
-2. In sandbox mode, use test credentials: `user_good` / `pass_good`
-3. Your account balances will appear automatically
+Run the complete schema in `supabase/schema.sql` which includes:
+- 6 database tables with RLS policies
+- Vault functions for secure Plaid token storage
+- Storage bucket for user avatars
 
 ## Tech Stack
 
-- Next.js 16 (App Router)
-- Supabase Auth
-- Plaid
-- Tailwind CSS
-- shadcn/ui
-- Recharts
+Next.js 16, Supabase, Plaid, Claude AI, Tailwind CSS, shadcn/ui, Recharts
+
+## License
+
+MIT
