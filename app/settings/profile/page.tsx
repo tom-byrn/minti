@@ -112,22 +112,29 @@ export default function ProfilePage() {
       return
     }
 
-    // Get public URL
+    // Get public URL with cache-busting timestamp
     const { data: { publicUrl } } = supabase.storage
       .from("avatars")
       .getPublicUrl(filePath)
 
+    const avatarUrlWithCacheBust = `${publicUrl}?t=${Date.now()}`
+
     // Update profile with avatar URL
     const { error: updateError } = await supabase
       .from("user_profiles")
-      .update({ avatar_url: publicUrl })
+      .update({ avatar_url: avatarUrlWithCacheBust })
       .eq("id", profile.id)
 
     if (updateError) {
       toast.error("Failed to update profile")
     } else {
-      setProfile({ ...profile, avatar_url: publicUrl })
+      setProfile({ ...profile, avatar_url: avatarUrlWithCacheBust })
       toast.success("Profile picture updated")
+    }
+
+    // Reset file input so the same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
     }
 
     setUploading(false)

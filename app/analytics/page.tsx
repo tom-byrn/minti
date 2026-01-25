@@ -248,7 +248,7 @@ export default function AnalyticsPage() {
                       dataKey="amount"
                       stroke="var(--color-amount)"
                       strokeWidth={3}
-                      dot={{ fill: "var(--color-amount)", r: 4 }}
+                      dot={false}
                       activeDot={{ r: 6 }}
                     />
                   </LineChart>

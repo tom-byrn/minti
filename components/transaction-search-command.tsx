@@ -158,13 +158,14 @@ export function TransactionSearchCommand({ open, onOpenChange }: TransactionSear
       onOpenChange={onOpenChange}
       title="Search Transactions"
       description="Search across all your connected accounts"
+      className="sm:max-w-2xl border-0 shadow-2xl"
     >
       <CommandInput
         placeholder="Search transactions..."
         value={searchQuery}
         onValueChange={setSearchQuery}
       />
-      <CommandList className="max-h-[400px]">
+      <CommandList className="max-h-[500px]">
         {loading && (
           <div className="flex items-center justify-center py-6">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

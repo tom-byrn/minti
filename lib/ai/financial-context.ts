@@ -1,5 +1,7 @@
 import { plaidClient } from '@/lib/plaid'
 import { createClient } from '@/lib/supabase/server'
+import { detectSubscriptions } from '@/lib/subscriptions/detect-subscriptions'
+import type { SubscriptionSummary } from '@/lib/subscriptions/types'
 
 interface FinancialSnapshot {
   totalBalance: number
@@ -26,6 +28,12 @@ export async function getFinancialContext(userId: string): Promise<string | null
       .select('*')
       .eq('user_id', userId)
       .single()
+
+    // Fetch category budgets
+    const { data: categoryBudgets } = await supabase
+      .from('category_budgets')
+      .select('category, monthly_limit')
+      .eq('user_id', userId)
 
     // Get user's Plaid secret_id from database (most recently updated first)
     const { data: plaidItems, error: plaidError } = await supabase
@@ -65,23 +73,44 @@ export async function getFinancialContext(userId: string): Promise<string | null
       0
     )
 
-    // Fetch recent transactions for spending analysis
+    // Fetch 12 months of transactions for subscription detection
     const now = new Date()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    const startDateStr = startOfMonth.toISOString().split('T')[0]
+    const twelveMonthsAgo = new Date(now)
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12)
+    const startDateStr = twelveMonthsAgo.toISOString().split('T')[0]
     const endDateStr = now.toISOString().split('T')[0]
 
-    const transactionsResponse = await plaidClient.transactionsGet({
-      access_token: accessToken,
-      start_date: startDateStr,
-      end_date: endDateStr,
-      options: {
-        count: 500,
-        offset: 0,
-      },
-    })
+    // Fetch all transactions with pagination
+    let allTransactions: any[] = []
+    let offset = 0
+    const count = 500
 
-    const transactions = transactionsResponse.data.transactions
+    while (true) {
+      const transactionsResponse = await plaidClient.transactionsGet({
+        access_token: accessToken,
+        start_date: startDateStr,
+        end_date: endDateStr,
+        options: {
+          count,
+          offset,
+        },
+      })
+
+      const fetchedTransactions = transactionsResponse.data.transactions
+      allTransactions = [...allTransactions, ...fetchedTransactions]
+
+      if (fetchedTransactions.length < count) {
+        break
+      }
+
+      offset += count
+    }
+
+    // Filter to current month for spending analysis
+    const transactions = allTransactions.filter(
+      (t) => new Date(t.date) >= startOfMonth
+    )
 
     // Calculate this month's spending and income
     const thisMonthSpending = transactions
@@ -110,6 +139,9 @@ export async function getFinancialContext(userId: string): Promise<string | null
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 5)
 
+    // Detect subscriptions from all transactions
+    const subscriptionSummary = detectSubscriptions(allTransactions)
+
     // Format the financial context as a readable string
     const snapshot: FinancialSnapshot = {
       totalBalance: Math.round(totalBalance),
@@ -123,7 +155,7 @@ export async function getFinancialContext(userId: string): Promise<string | null
       topCategories,
     }
 
-    return formatFinancialContext(snapshot, budgetProfile)
+    return formatFinancialContext(snapshot, budgetProfile, categoryBudgets, subscriptionSummary)
   } catch (error) {
     console.error('Error fetching financial context:', error)
     return null
@@ -137,7 +169,28 @@ interface BudgetProfileData {
   financial_goals: string | null
 }
 
-function formatFinancialContext(snapshot: FinancialSnapshot, budgetProfile?: BudgetProfileData | null): string {
+interface CategoryBudgetData {
+  category: string
+  monthly_limit: number
+}
+
+function formatBillingPeriod(period: string): string {
+  switch (period) {
+    case 'weekly': return 'weekly'
+    case 'biweekly': return 'bi-weekly'
+    case 'monthly': return 'monthly'
+    case 'quarterly': return 'quarterly'
+    case 'annually': return 'annually'
+    default: return period
+  }
+}
+
+function formatFinancialContext(
+  snapshot: FinancialSnapshot,
+  budgetProfile?: BudgetProfileData | null,
+  categoryBudgets?: CategoryBudgetData[] | null,
+  subscriptions?: SubscriptionSummary | null
+): string {
   const lines: string[] = []
 
   // Include user financial profile if available
@@ -182,6 +235,39 @@ function formatFinancialContext(snapshot: FinancialSnapshot, budgetProfile?: Bud
     lines.push('**Top Spending Categories This Month:**')
     snapshot.topCategories.forEach((cat, i) => {
       lines.push(`${i + 1}. ${cat.category}: $${cat.amount.toLocaleString()}`)
+    })
+    lines.push('')
+  }
+
+  // Include category budgets if set
+  if (categoryBudgets && categoryBudgets.length > 0) {
+    lines.push('**Monthly Category Budgets:**')
+    categoryBudgets.forEach((budget) => {
+      const spending = snapshot.topCategories.find(
+        (cat) => cat.category.toLowerCase() === budget.category.toLowerCase()
+      )
+      const spent = spending?.amount || 0
+      const remaining = budget.monthly_limit - spent
+      const percentUsed = Math.round((spent / budget.monthly_limit) * 100)
+      lines.push(
+        `- ${budget.category}: $${spent.toLocaleString()} / $${budget.monthly_limit.toLocaleString()} (${percentUsed}% used, $${remaining.toLocaleString()} ${remaining >= 0 ? 'remaining' : 'over budget'})`
+      )
+    })
+    lines.push('')
+  }
+
+  // Include subscription information if available
+  if (subscriptions && subscriptions.subscriptions.length > 0) {
+    lines.push('**Active Subscriptions:**')
+    lines.push(`- Total Monthly Cost: $${subscriptions.monthlyTotal.toLocaleString()}`)
+    lines.push(`- Total Yearly Cost: $${subscriptions.yearlyTotal.toLocaleString()}`)
+    lines.push(`- Active Subscriptions: ${subscriptions.activeCount}`)
+    lines.push('')
+    lines.push('**Subscription Details:**')
+    subscriptions.subscriptions.forEach((sub) => {
+      lines.push(
+        `- ${sub.merchantName}: $${sub.estimatedAmount.toFixed(2)} ${formatBillingPeriod(sub.billingPeriod)} (${sub.category}, next charge: ${sub.nextExpectedCharge})`
+      )
     })
   }
 

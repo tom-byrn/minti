@@ -36,14 +36,12 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
   } = useAIChat()
 
   const [showSessions, setShowSessions] = useState(false)
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
-  }, [messages])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages, isLoading])
 
   const handleSuggestedQuestion = (question: string) => {
     sendMessage(question)
@@ -92,7 +90,7 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                     {showSessions ? "Chat History" : "AI Financial Assistant"}
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    {showSessions ? "Select a conversation" : "Powered by Minti AI"}
+                    {showSessions ? "Select a conversation" : "Ask about your finances"}
                   </CardDescription>
                 </div>
               </div>
@@ -185,8 +183,8 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
             ) : (
               // Chat View
               <>
-                <ScrollArea className="flex-1 px-4" ref={scrollRef}>
-                  <div className="space-y-4 py-4">
+                <ScrollArea className="flex-1 overflow-hidden">
+                  <div className="space-y-4 py-4 px-4">
                     {messages.length === 0 && (
                       <div className="flex gap-3">
                         <Avatar className="h-8 w-8">
@@ -253,6 +251,7 @@ export function AIAssistantPopup({ isOpen, onClose }: AIAssistantPopupProps) {
                         </div>
                       </div>
                     )}
+                    <div ref={messagesEndRef} />
                   </div>
                 </ScrollArea>
 
