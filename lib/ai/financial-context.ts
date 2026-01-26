@@ -3,6 +3,30 @@ import { createClient } from '@/lib/supabase/server'
 import { detectSubscriptions } from '@/lib/subscriptions/detect-subscriptions'
 import type { SubscriptionSummary } from '@/lib/subscriptions/types'
 
+// Cache for financial context to avoid excessive Plaid API calls
+const contextCache = new Map<string, { data: string; timestamp: number }>()
+const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
+
+function getCachedContext(userId: string): string | null {
+  const cached = contextCache.get(userId)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data
+  }
+  // Clear expired cache entry
+  if (cached) {
+    contextCache.delete(userId)
+  }
+  return null
+}
+
+function setCachedContext(userId: string, data: string): void {
+  contextCache.set(userId, { data, timestamp: Date.now() })
+}
+
+export function invalidateFinancialContextCache(userId: string): void {
+  contextCache.delete(userId)
+}
+
 interface FinancialSnapshot {
   totalBalance: number
   accounts: Array<{
@@ -19,6 +43,12 @@ interface FinancialSnapshot {
 }
 
 export async function getFinancialContext(userId: string): Promise<string | null> {
+  // Check cache first
+  const cached = getCachedContext(userId)
+  if (cached) {
+    return cached
+  }
+
   try {
     const supabase = await createClient()
 
@@ -155,7 +185,12 @@ export async function getFinancialContext(userId: string): Promise<string | null
       topCategories,
     }
 
-    return formatFinancialContext(snapshot, budgetProfile, categoryBudgets, subscriptionSummary)
+    const formattedContext = formatFinancialContext(snapshot, budgetProfile, categoryBudgets, subscriptionSummary)
+
+    // Cache the result
+    setCachedContext(userId, formattedContext)
+
+    return formattedContext
   } catch (error) {
     console.error('Error fetching financial context:', error)
     return null

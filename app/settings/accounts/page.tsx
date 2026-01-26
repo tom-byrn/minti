@@ -56,10 +56,26 @@ export default function AccountsPage() {
     fetchBankDetails()
   }, [])
 
-  const handleBankReconnect = () => {
-    // TODO: Implement server-side disconnect
-    setHasBankConnection(false)
-    setBankAccounts([])
+  const [disconnecting, setDisconnecting] = useState(false)
+
+  const handleBankReconnect = async () => {
+    setDisconnecting(true)
+    try {
+      const response = await fetch("/api/plaid/disconnect", {
+        method: "POST",
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        console.error("Failed to disconnect:", data.error)
+      }
+    } catch (error) {
+      console.error("Error disconnecting bank:", error)
+    } finally {
+      setHasBankConnection(false)
+      setBankAccounts([])
+      setDisconnecting(false)
+    }
   }
 
   const handlePlaidSuccess = async () => {
@@ -132,8 +148,9 @@ export default function AccountsPage() {
               <Button
                 variant="destructive"
                 onClick={handleBankReconnect}
+                disabled={disconnecting}
               >
-                Disconnect & Reconnect
+                {disconnecting ? "Disconnecting..." : "Disconnect & Reconnect"}
               </Button>
             </div>
           ) : (

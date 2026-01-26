@@ -49,23 +49,45 @@ export async function POST(request: NextRequest) {
     const endDate = end_date || new Date().toISOString().split('T')[0];
     const startDate = start_date || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-    const response = await plaidClient.transactionsGet({
-      access_token,
-      start_date: startDate,
-      end_date: endDate,
-      options: {
-        count: 100,
-        offset: 0,
-      },
-    });
+    // Fetch all transactions with pagination
+    let allTransactions: any[] = [];
+    let accounts: any[] = [];
+    let totalTransactions = 0;
+    let offset = 0;
+    const count = 500;
 
-    const transactions = response.data.transactions;
-    const accounts = response.data.accounts;
+    while (true) {
+      const response = await plaidClient.transactionsGet({
+        access_token,
+        start_date: startDate,
+        end_date: endDate,
+        options: {
+          count,
+          offset,
+        },
+      });
+
+      const fetchedTransactions = response.data.transactions;
+      allTransactions = [...allTransactions, ...fetchedTransactions];
+
+      // Only set accounts and total on first request
+      if (offset === 0) {
+        accounts = response.data.accounts;
+        totalTransactions = response.data.total_transactions;
+      }
+
+      // If we got fewer transactions than requested, we've reached the end
+      if (fetchedTransactions.length < count) {
+        break;
+      }
+
+      offset += count;
+    }
 
     return NextResponse.json({
-      transactions,
+      transactions: allTransactions,
       accounts,
-      total_transactions: response.data.total_transactions,
+      total_transactions: totalTransactions,
     });
   } catch (error: any) {
     console.error('Error fetching transactions:', error);

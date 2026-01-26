@@ -265,11 +265,27 @@ export default function AccountsPage() {
     fetchAccountTransactions(account.account_id)
   }
 
-  const handleDisconnect = () => {
-    // TODO: Implement server-side disconnect
-    setHasConnection(false)
-    setAccounts([])
-    setSelectedAccount(null)
+  const [disconnecting, setDisconnecting] = useState(false)
+
+  const handleDisconnect = async () => {
+    setDisconnecting(true)
+    try {
+      const response = await fetch("/api/plaid/disconnect", {
+        method: "POST",
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        console.error("Failed to disconnect:", data.error)
+      }
+    } catch (error) {
+      console.error("Error disconnecting bank:", error)
+    } finally {
+      setHasConnection(false)
+      setAccounts([])
+      setSelectedAccount(null)
+      setDisconnecting(false)
+    }
   }
 
   // Calculate summary
