@@ -25,6 +25,7 @@ const navLinks = [
   { href: "/accounts", label: "Accounts" },
   { href: "/analytics", label: "Analytics" },
   { href: "/budget", label: "Budget" },
+  { href: "/goals", label: "Goals" },
   { href: "/subscriptions", label: "Subscriptions" },
   { href: "/ai", label: "AI Assistant" },
 ]

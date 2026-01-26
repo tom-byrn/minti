@@ -78,7 +78,7 @@ export function GoalCard({ goal, onEdit, onDelete, onContribute }: GoalCardProps
   }
 
   return (
-    <Card className={`transition-all hover:shadow-md hover:-translate-y-1 border-border/50 bg-card/80 backdrop-blur ${goal.isCompleted ? 'opacity-75' : ''}`}>
+    <Card className={`border-border/50 bg-card/80 backdrop-blur ${goal.isCompleted ? 'opacity-75' : ''}`}>
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex gap-4 flex-1 min-w-0">

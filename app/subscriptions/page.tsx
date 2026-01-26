@@ -167,7 +167,7 @@ function SubscriptionCard({ subscription, onEdit, onDismiss }: SubscriptionCardP
   const isUpcoming = daysUntil !== null && daysUntil >= 0 && daysUntil <= 7
 
   return (
-    <Card className={`transition-all hover:shadow-md hover:-translate-y-1 border-border/50 bg-card/80 backdrop-blur ${isUpcoming ? 'ring-1 ring-primary/20' : ''}`}>
+    <Card className={`border-border/50 bg-card/80 backdrop-blur ${isUpcoming ? 'ring-1 ring-primary/20' : ''}`}>
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">

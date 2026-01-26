@@ -340,7 +340,7 @@ export default function AccountsPage() {
               <>
                 {/* Net Worth Summary */}
                 <div className="grid gap-5 sm:grid-cols-3">
-                  <Card className="border-border/50 bg-card/80 backdrop-blur shadow-lg">
+                  <Card className="transition-all hover:shadow-lg hover:-translate-y-1 border-border/50 bg-card/80 backdrop-blur shadow-lg">
                     <CardHeader className="pb-2">
                       <CardDescription className="text-base">Total Assets</CardDescription>
                     </CardHeader>
@@ -351,7 +351,7 @@ export default function AccountsPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-border/50 bg-card/80 backdrop-blur shadow-lg">
+                  <Card className="transition-all hover:shadow-lg hover:-translate-y-1 border-border/50 bg-card/80 backdrop-blur shadow-lg">
                     <CardHeader className="pb-2">
                       <CardDescription className="text-base">Total Liabilities</CardDescription>
                     </CardHeader>
@@ -362,7 +362,7 @@ export default function AccountsPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-border/50 bg-card/80 backdrop-blur shadow-lg">
+                  <Card className="transition-all hover:shadow-lg hover:-translate-y-1 border-border/50 bg-card/80 backdrop-blur shadow-lg">
                     <CardHeader className="pb-2">
                       <CardDescription className="text-base">Net Worth</CardDescription>
                     </CardHeader>

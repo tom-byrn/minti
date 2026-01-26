@@ -35,7 +35,7 @@ export function GoalFormDialog({ goal, open, onOpenChange, onSave }: GoalFormDia
   const [currentAmount, setCurrentAmount] = useState('')
   const [deadline, setDeadline] = useState('')
   const [category, setCategory] = useState('')
-  const [color, setColor] = useState(GOAL_COLORS[0].value)
+  const [color, setColor] = useState<string>(GOAL_COLORS[0].value)
   const [icon, setIcon] = useState<string>(GOAL_ICONS[0])
   const [saving, setSaving] = useState(false)
 

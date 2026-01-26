@@ -1,7 +1,8 @@
 import { plaidClient } from '@/lib/plaid'
 import { createClient } from '@/lib/supabase/server'
 import { detectSubscriptions } from '@/lib/subscriptions/detect-subscriptions'
-import type { SubscriptionSummary } from '@/lib/subscriptions/types'
+import type { SubscriptionSummary, MergedSubscription, BillingPeriod } from '@/lib/subscriptions/types'
+import { calculateGoalProgress, type GoalWithProgress } from '@/lib/goals/types'
 
 // Cache for financial context to avoid excessive Plaid API calls
 const contextCache = new Map<string, { data: string; timestamp: number }>()
@@ -64,6 +65,50 @@ export async function getFinancialContext(userId: string): Promise<string | null
       .from('category_budgets')
       .select('category, monthly_limit')
       .eq('user_id', userId)
+
+    // Fetch financial goals
+    const { data: goalsData } = await supabase
+      .from('financial_goals')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+
+    // Transform goals to GoalWithProgress
+    const goals: GoalWithProgress[] = (goalsData || []).map((goal) => ({
+      id: goal.id,
+      userId: goal.user_id,
+      name: goal.name,
+      targetAmount: goal.target_amount,
+      currentAmount: goal.current_amount || 0,
+      deadline: goal.deadline,
+      category: goal.category,
+      color: goal.color,
+      icon: goal.icon,
+      isCompleted: goal.is_completed || false,
+      createdAt: goal.created_at,
+      updatedAt: goal.updated_at,
+      progress: calculateGoalProgress({
+        targetAmount: goal.target_amount,
+        currentAmount: goal.current_amount || 0,
+        deadline: goal.deadline,
+        createdAt: goal.created_at,
+      }),
+    }))
+
+    // Fetch user-edited subscriptions
+    const { data: userSubscriptions } = await supabase
+      .from('user_subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_active', true)
+
+    // Fetch dismissed subscription IDs
+    const { data: dismissedData } = await supabase
+      .from('dismissed_subscriptions')
+      .select('detected_subscription_id')
+      .eq('user_id', userId)
+
+    const dismissedIds = new Set(dismissedData?.map((d) => d.detected_subscription_id) || [])
 
     // Get user's Plaid secret_id from database (most recently updated first)
     const { data: plaidItems, error: plaidError } = await supabase
@@ -170,7 +215,81 @@ export async function getFinancialContext(userId: string): Promise<string | null
       .slice(0, 5)
 
     // Detect subscriptions from all transactions
-    const subscriptionSummary = detectSubscriptions(allTransactions)
+    const detectedSummary = detectSubscriptions(allTransactions)
+
+    // Merge detected subscriptions with user edits
+    const userSubsByDetectedId = new Map<string, any>()
+    const manualSubs: MergedSubscription[] = []
+
+    userSubscriptions?.forEach((sub) => {
+      if (sub.detected_subscription_id) {
+        userSubsByDetectedId.set(sub.detected_subscription_id, sub)
+      } else if (sub.source === 'manual') {
+        manualSubs.push({
+          id: sub.id,
+          merchantName: sub.merchant_name,
+          displayName: sub.display_name,
+          category: sub.category,
+          amount: sub.amount,
+          billingPeriod: sub.billing_period as BillingPeriod,
+          nextChargeDate: sub.next_charge_date,
+          lastCharged: null,
+          confidence: null,
+          transactionCount: null,
+          source: 'manual',
+          detectedSubscriptionId: null,
+          isActive: true,
+          userSubscriptionId: sub.id,
+        })
+      }
+    })
+
+    // Build merged subscriptions list
+    const mergedSubscriptions: MergedSubscription[] = []
+
+    detectedSummary.subscriptions
+      .filter((sub) => !dismissedIds.has(sub.id))
+      .forEach((detected) => {
+        const userSub = userSubsByDetectedId.get(detected.id)
+        if (userSub) {
+          mergedSubscriptions.push({
+            id: userSub.id,
+            merchantName: userSub.merchant_name,
+            displayName: userSub.display_name,
+            category: userSub.category,
+            amount: userSub.amount,
+            billingPeriod: userSub.billing_period as BillingPeriod,
+            nextChargeDate: userSub.next_charge_date,
+            lastCharged: detected.lastCharged,
+            confidence: detected.confidence,
+            transactionCount: detected.transactionCount,
+            source: 'edited',
+            detectedSubscriptionId: detected.id,
+            isActive: true,
+            userSubscriptionId: userSub.id,
+          })
+        } else {
+          mergedSubscriptions.push({
+            id: detected.id,
+            merchantName: detected.merchantName,
+            displayName: null,
+            category: detected.category,
+            amount: detected.estimatedAmount,
+            billingPeriod: detected.billingPeriod,
+            nextChargeDate: detected.nextExpectedCharge,
+            lastCharged: detected.lastCharged,
+            confidence: detected.confidence,
+            transactionCount: detected.transactionCount,
+            source: 'detected',
+            detectedSubscriptionId: detected.id,
+            isActive: true,
+            userSubscriptionId: null,
+          })
+        }
+      })
+
+    // Add manual subscriptions
+    mergedSubscriptions.push(...manualSubs)
 
     // Format the financial context as a readable string
     const snapshot: FinancialSnapshot = {
@@ -185,7 +304,7 @@ export async function getFinancialContext(userId: string): Promise<string | null
       topCategories,
     }
 
-    const formattedContext = formatFinancialContext(snapshot, budgetProfile, categoryBudgets, subscriptionSummary)
+    const formattedContext = formatFinancialContext(snapshot, budgetProfile, categoryBudgets, mergedSubscriptions, goals)
 
     // Cache the result
     setCachedContext(userId, formattedContext)
@@ -224,7 +343,8 @@ function formatFinancialContext(
   snapshot: FinancialSnapshot,
   budgetProfile?: BudgetProfileData | null,
   categoryBudgets?: CategoryBudgetData[] | null,
-  subscriptions?: SubscriptionSummary | null
+  subscriptions?: MergedSubscription[] | null,
+  goals?: GoalWithProgress[] | null
 ): string {
   const lines: string[] = []
 
@@ -292,18 +412,69 @@ function formatFinancialContext(
   }
 
   // Include subscription information if available
-  if (subscriptions && subscriptions.subscriptions.length > 0) {
+  if (subscriptions && subscriptions.length > 0) {
+    // Calculate totals
+    const getMonthlyAmount = (amount: number, period: BillingPeriod): number => {
+      switch (period) {
+        case 'weekly': return amount * 4.33
+        case 'biweekly': return amount * 2.17
+        case 'monthly': return amount
+        case 'quarterly': return amount / 3
+        case 'annually': return amount / 12
+      }
+    }
+
+    const monthlyTotal = subscriptions.reduce((sum, sub) => sum + getMonthlyAmount(sub.amount, sub.billingPeriod), 0)
+    const yearlyTotal = monthlyTotal * 12
+
     lines.push('**Active Subscriptions:**')
-    lines.push(`- Total Monthly Cost: $${subscriptions.monthlyTotal.toLocaleString()}`)
-    lines.push(`- Total Yearly Cost: $${subscriptions.yearlyTotal.toLocaleString()}`)
-    lines.push(`- Active Subscriptions: ${subscriptions.activeCount}`)
+    lines.push(`- Total Monthly Cost: $${Math.round(monthlyTotal).toLocaleString()}`)
+    lines.push(`- Total Yearly Cost: $${Math.round(yearlyTotal).toLocaleString()}`)
+    lines.push(`- Active Subscriptions: ${subscriptions.length}`)
     lines.push('')
     lines.push('**Subscription Details:**')
-    subscriptions.subscriptions.forEach((sub) => {
+    subscriptions.forEach((sub) => {
+      const name = sub.displayName || sub.merchantName
+      const source = sub.source === 'manual' ? ' (manual)' : sub.source === 'edited' ? ' (edited)' : ''
+      const nextCharge = sub.nextChargeDate ? `, next charge: ${sub.nextChargeDate}` : ''
       lines.push(
-        `- ${sub.merchantName}: $${sub.estimatedAmount.toFixed(2)} ${formatBillingPeriod(sub.billingPeriod)} (${sub.category}, next charge: ${sub.nextExpectedCharge})`
+        `- ${name}: $${sub.amount.toFixed(2)} ${formatBillingPeriod(sub.billingPeriod)} (${sub.category || 'Uncategorized'}${nextCharge})${source}`
       )
     })
+    lines.push('')
+  }
+
+  // Include financial goals if available
+  if (goals && goals.length > 0) {
+    const activeGoals = goals.filter(g => !g.isCompleted)
+    const completedGoals = goals.filter(g => g.isCompleted)
+
+    lines.push('**Financial Goals:**')
+    lines.push(`- Active Goals: ${activeGoals.length}`)
+    lines.push(`- Completed Goals: ${completedGoals.length}`)
+    lines.push('')
+
+    if (activeGoals.length > 0) {
+      lines.push('**Active Goal Details:**')
+      activeGoals.forEach((goal) => {
+        const deadline = goal.deadline ? ` (deadline: ${goal.deadline})` : ''
+        const monthlyNeeded = goal.progress.monthlyNeeded ? ` - needs $${goal.progress.monthlyNeeded.toLocaleString()}/mo` : ''
+        const onTrack = goal.progress.isOnTrack !== null
+          ? goal.progress.isOnTrack ? ' - on track' : ' - behind schedule'
+          : ''
+        lines.push(
+          `- ${goal.name}: $${goal.currentAmount.toLocaleString()} / $${goal.targetAmount.toLocaleString()} (${goal.progress.percentage}% complete${deadline}${monthlyNeeded}${onTrack})`
+        )
+      })
+      lines.push('')
+    }
+
+    if (completedGoals.length > 0) {
+      lines.push('**Completed Goals:**')
+      completedGoals.forEach((goal) => {
+        lines.push(`- ${goal.name}: $${goal.targetAmount.toLocaleString()} achieved`)
+      })
+    }
   }
 
   return lines.join('\n')

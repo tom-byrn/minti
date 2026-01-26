@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CurrencyDollar as CurrencyDollarIcon, Wallet as WalletIcon, PiggyBank as PiggyBankIcon, Percent as PercentIcon, WarningCircle as WarningCircleIcon, Target as TargetIcon } from "@phosphor-icons/react"
+import { CurrencyDollar as CurrencyDollarIcon, Wallet as WalletIcon, PiggyBank as PiggyBankIcon, Percent as PercentIcon, WarningCircle as WarningCircleIcon, Target as TargetIcon, ArrowRight as ArrowRightIcon } from "@phosphor-icons/react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { ReconnectBankCard } from "@/components/reconnect-bank-card"
@@ -26,12 +26,23 @@ interface AnalyticsData {
   budgetProgress: Array<{ category: string; spent: number; budget: number | null; percentage: number; hasBudget: boolean }>
 }
 
+interface GoalPreview {
+  id: string
+  name: string
+  targetAmount: number
+  currentAmount: number
+  color: string | null
+  progress: { percentage: number }
+}
+
 export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [hasConnectedAccount, setHasConnectedAccount] = useState(true)
   const [spendingPeriod, setSpendingPeriod] = useState<string>('1m')
+  const [goals, setGoals] = useState<GoalPreview[]>([])
+  const [goalsLoading, setGoalsLoading] = useState(true)
 
   const fetchAnalytics = async (period: string = spendingPeriod) => {
     try {
@@ -76,6 +87,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     fetchAnalytics(spendingPeriod)
+    fetchGoals()
   }, [])
 
   useEffect(() => {
@@ -87,6 +99,25 @@ export default function AnalyticsPage() {
   const handlePlaidSuccess = () => {
     setError(null)
     fetchAnalytics(spendingPeriod)
+  }
+
+  const fetchGoals = async () => {
+    try {
+      setGoalsLoading(true)
+      const response = await fetch('/api/goals')
+      if (response.ok) {
+        const data = await response.json()
+        // Only show active goals (not completed), limit to 3
+        const activeGoals = data
+          .filter((g: any) => !g.isCompleted)
+          .slice(0, 3)
+        setGoals(activeGoals)
+      }
+    } catch (err) {
+      console.error('Error fetching goals:', err)
+    } finally {
+      setGoalsLoading(false)
+    }
   }
 
   if (error || !data) {
@@ -493,6 +524,89 @@ export default function AnalyticsPage() {
                             </div>
                           </CardContent>
                         </Card>
+                      )
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Goals Progress Preview */}
+            <Card className="border-border/50 bg-card/80 backdrop-blur shadow-lg">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl font-serif font-semibold">Goals Progress</CardTitle>
+                    <CardDescription>Track your financial goals</CardDescription>
+                  </div>
+                  <Link href="/goals">
+                    <Button variant="outline" size="sm">
+                      <TargetIcon className="h-4 w-4 mr-2" weight="thin" />
+                      View All Goals
+                    </Button>
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {goalsLoading ? (
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="p-4 rounded-lg bg-muted/50 animate-pulse">
+                        <div className="h-4 w-24 bg-muted rounded mb-2" />
+                        <div className="h-6 w-32 bg-muted rounded mb-3" />
+                        <div className="h-2 w-full bg-muted rounded" />
+                      </div>
+                    ))}
+                  </div>
+                ) : goals.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                      <TargetIcon className="h-8 w-8 text-muted-foreground" weight="thin" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">No goals yet</h3>
+                    <p className="text-muted-foreground mb-6 max-w-md">
+                      Set financial goals to track your progress toward saving for things that matter to you.
+                    </p>
+                    <Link href="/goals">
+                      <Button>
+                        <TargetIcon className="h-4 w-4 mr-2" weight="thin" />
+                        Create Your First Goal
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    {goals.map((goal) => {
+                      const color = goal.color || '#7DB87D'
+                      return (
+                        <Link key={goal.id} href="/goals">
+                          <div className="p-4 rounded-lg border border-border/50 bg-background/50 hover:bg-muted/50 transition-colors cursor-pointer group">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium text-foreground truncate">{goal.name}</span>
+                              <ArrowRightIcon className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" weight="thin" />
+                            </div>
+                            <div className="flex items-end justify-between mb-2">
+                              <span className="text-lg font-bold font-serif">
+                                ${goal.currentAmount.toLocaleString()}
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                / ${goal.targetAmount.toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all"
+                                style={{
+                                  width: `${goal.progress.percentage}%`,
+                                  backgroundColor: color,
+                                }}
+                              />
+                            </div>
+                            <div className="mt-2 text-xs text-muted-foreground text-right">
+                              {goal.progress.percentage}% complete
+                            </div>
+                          </div>
+                        </Link>
                       )
                     })}
                   </div>
