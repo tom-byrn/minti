@@ -244,3 +244,94 @@ create policy "Users can delete own avatars" on storage.objects
     bucket_id = 'avatars'
     and auth.uid()::text = (storage.foldername(name))[1]
   );
+
+-- ============================================================================
+-- USER SUBSCRIPTIONS (for editing/persisting detected subscriptions)
+-- ============================================================================
+
+-- User-persisted/edited subscriptions
+create table if not exists public.user_subscriptions (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  merchant_name text not null,
+  display_name text,
+  category text,
+  amount numeric not null,
+  billing_period text not null check (billing_period in ('weekly', 'biweekly', 'monthly', 'quarterly', 'annually')),
+  next_charge_date date,
+  source text not null check (source in ('manual', 'detected')),
+  detected_subscription_id text,
+  is_active boolean default true,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  unique(user_id, detected_subscription_id)
+);
+
+-- Dismissed detected subscriptions (false positives)
+create table if not exists public.dismissed_subscriptions (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  detected_subscription_id text not null,
+  dismissed_at timestamptz default now(),
+  unique(user_id, detected_subscription_id)
+);
+
+-- RLS for user_subscriptions
+alter table public.user_subscriptions enable row level security;
+
+create policy "Users can view own subscriptions" on public.user_subscriptions
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own subscriptions" on public.user_subscriptions
+  for insert with check (auth.uid() = user_id);
+create policy "Users can update own subscriptions" on public.user_subscriptions
+  for update using (auth.uid() = user_id);
+create policy "Users can delete own subscriptions" on public.user_subscriptions
+  for delete using (auth.uid() = user_id);
+
+-- RLS for dismissed_subscriptions
+alter table public.dismissed_subscriptions enable row level security;
+
+create policy "Users can view own dismissed" on public.dismissed_subscriptions
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own dismissed" on public.dismissed_subscriptions
+  for insert with check (auth.uid() = user_id);
+create policy "Users can delete own dismissed" on public.dismissed_subscriptions
+  for delete using (auth.uid() = user_id);
+
+-- Indexes for subscriptions
+create index if not exists idx_user_subscriptions_user_id on public.user_subscriptions(user_id);
+create index if not exists idx_dismissed_subscriptions_user_id on public.dismissed_subscriptions(user_id);
+
+-- ============================================================================
+-- FINANCIAL GOALS
+-- ============================================================================
+
+create table if not exists public.financial_goals (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  target_amount numeric not null,
+  current_amount numeric default 0,
+  deadline date,
+  category text,
+  color text,
+  icon text,
+  is_completed boolean default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- RLS for financial_goals
+alter table public.financial_goals enable row level security;
+
+create policy "Users can view own goals" on public.financial_goals
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own goals" on public.financial_goals
+  for insert with check (auth.uid() = user_id);
+create policy "Users can update own goals" on public.financial_goals
+  for update using (auth.uid() = user_id);
+create policy "Users can delete own goals" on public.financial_goals
+  for delete using (auth.uid() = user_id);
+
+-- Indexes for goals
+create index if not exists idx_financial_goals_user_id on public.financial_goals(user_id);

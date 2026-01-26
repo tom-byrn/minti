@@ -185,3 +185,105 @@ export type BudgetProfileUpdate = Database['public']['Tables']['budget_profiles'
 export type CategoryBudget = Database['public']['Tables']['category_budgets']['Row']
 export type CategoryBudgetInsert = Database['public']['Tables']['category_budgets']['Insert']
 export type CategoryBudgetUpdate = Database['public']['Tables']['category_budgets']['Update']
+
+// User Subscriptions
+export interface UserSubscription {
+  id: string
+  user_id: string
+  merchant_name: string
+  display_name: string | null
+  category: string | null
+  amount: number
+  billing_period: 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'annually'
+  next_charge_date: string | null
+  source: 'manual' | 'detected'
+  detected_subscription_id: string | null
+  is_active: boolean
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface UserSubscriptionInsert {
+  id?: string
+  user_id: string
+  merchant_name: string
+  display_name?: string | null
+  category?: string | null
+  amount: number
+  billing_period: 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'annually'
+  next_charge_date?: string | null
+  source: 'manual' | 'detected'
+  detected_subscription_id?: string | null
+  is_active?: boolean
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+export interface UserSubscriptionUpdate {
+  merchant_name?: string
+  display_name?: string | null
+  category?: string | null
+  amount?: number
+  billing_period?: 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'annually'
+  next_charge_date?: string | null
+  is_active?: boolean
+  updated_at?: string | null
+}
+
+// Dismissed Subscriptions
+export interface DismissedSubscription {
+  id: string
+  user_id: string
+  detected_subscription_id: string
+  dismissed_at: string | null
+}
+
+export interface DismissedSubscriptionInsert {
+  id?: string
+  user_id: string
+  detected_subscription_id: string
+  dismissed_at?: string | null
+}
+
+// Financial Goals
+export interface FinancialGoal {
+  id: string
+  user_id: string
+  name: string
+  target_amount: number
+  current_amount: number
+  deadline: string | null
+  category: string | null
+  color: string | null
+  icon: string | null
+  is_completed: boolean
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface FinancialGoalInsert {
+  id?: string
+  user_id: string
+  name: string
+  target_amount: number
+  current_amount?: number
+  deadline?: string | null
+  category?: string | null
+  color?: string | null
+  icon?: string | null
+  is_completed?: boolean
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+export interface FinancialGoalUpdate {
+  name?: string
+  target_amount?: number
+  current_amount?: number
+  deadline?: string | null
+  category?: string | null
+  color?: string | null
+  icon?: string | null
+  is_completed?: boolean
+  updated_at?: string | null
+}
