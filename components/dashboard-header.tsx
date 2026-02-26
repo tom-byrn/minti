@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { List as ListIcon, MagnifyingGlass as MagnifyingGlassIcon, Gear as GearIcon, ChatCircle as ChatCircleIcon } from "@phosphor-icons/react"
+import { NotificationBell } from "./notification-bell"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -126,6 +127,8 @@ export function DashboardHeader() {
           <Button variant="ghost" size="icon" onClick={togglePopup} className="hover:bg-primary/10 hover:text-primary rounded-xl">
             <ChatCircleIcon className="h-5 w-5" weight="thin" />
           </Button>
+
+          <NotificationBell />
 
           <Link href="/settings">
             <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary rounded-xl">
