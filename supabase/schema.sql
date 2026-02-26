@@ -373,3 +373,34 @@ create policy "Users can delete own alerts" on public.alerts
 -- Indexes for alerts
 create index if not exists idx_alerts_user_id on public.alerts(user_id);
 create index if not exists idx_alerts_user_read on public.alerts(user_id, read);
+
+-- ============================================================================
+-- WEEKLY DIGESTS
+-- ============================================================================
+
+create table if not exists public.weekly_digests (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  week_start date not null,
+  week_end date not null,
+  digest_data jsonb not null,
+  ai_insight text,
+  created_at timestamptz default now(),
+  unique(user_id, week_start)
+);
+
+-- RLS for weekly_digests
+alter table public.weekly_digests enable row level security;
+
+create policy "Users can view own digests" on public.weekly_digests
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own digests" on public.weekly_digests
+  for insert with check (auth.uid() = user_id);
+create policy "Users can update own digests" on public.weekly_digests
+  for update using (auth.uid() = user_id);
+create policy "Users can delete own digests" on public.weekly_digests
+  for delete using (auth.uid() = user_id);
+
+-- Indexes for weekly_digests
+create index if not exists idx_weekly_digests_user_id on public.weekly_digests(user_id);
+create index if not exists idx_weekly_digests_user_week on public.weekly_digests(user_id, week_start);

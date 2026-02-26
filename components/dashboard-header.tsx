@@ -25,6 +25,7 @@ const navLinks = [
   { href: "/", label: "Dashboard" },
   { href: "/accounts", label: "Accounts" },
   { href: "/analytics", label: "Analytics" },
+  { href: "/digest", label: "Digest" },
   { href: "/budget", label: "Budget" },
   { href: "/goals", label: "Goals" },
   { href: "/subscriptions", label: "Subscriptions" },

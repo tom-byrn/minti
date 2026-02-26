@@ -325,3 +325,63 @@ export interface AlertInsert {
   data?: Record<string, unknown>
   created_at?: string | null
 }
+
+// Weekly Digests
+export interface WeeklyDigest {
+  id: string
+  user_id: string
+  week_start: string
+  week_end: string
+  digest_data: DigestData
+  ai_insight: string | null
+  created_at: string | null
+}
+
+export interface WeeklyDigestInsert {
+  id?: string
+  user_id: string
+  week_start: string
+  week_end: string
+  digest_data: DigestData
+  ai_insight?: string | null
+  created_at?: string | null
+}
+
+export interface DigestData {
+  weekAtGlance: {
+    totalSpent: number
+    totalEarned: number
+    netChange: number
+    prevWeekSpent: number
+    prevWeekEarned: number
+    spentChange: number
+    earnedChange: number
+  }
+  budgetScorecard: Array<{
+    category: string
+    spent: number
+    limit: number
+    percentage: number
+    status: 'on_track' | 'at_risk' | 'exceeded'
+  }>
+  topCategories: Array<{
+    category: string
+    amount: number
+    prevWeekAmount: number
+    change: number
+  }>
+  subscriptionActivity: {
+    renewedThisWeek: Array<{ name: string; amount: number; date: string }>
+    upcomingNextWeek: Array<{ name: string; amount: number; date: string }>
+    totalMonthly: number
+  }
+  goalProgress: Array<{
+    name: string
+    current: number
+    target: number
+    percentage: number
+    weeklyChange: number
+    isOnTrack: boolean | null
+    color: string | null
+  }>
+}
