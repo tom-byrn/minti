@@ -287,3 +287,41 @@ export interface FinancialGoalUpdate {
   is_completed?: boolean
   updated_at?: string | null
 }
+
+// Alerts
+export type AlertType =
+  | 'budget_warning'
+  | 'budget_exceeded'
+  | 'subscription_renewal'
+  | 'subscription_price_change'
+  | 'goal_at_risk'
+  | 'goal_achieved'
+  | 'unusual_spending'
+  | 'income_received'
+  | 'savings_rate_drop'
+
+export type AlertPriority = 'low' | 'medium' | 'high'
+
+export interface Alert {
+  id: string
+  user_id: string
+  type: AlertType
+  title: string
+  message: string
+  priority: AlertPriority
+  read: boolean
+  data: Record<string, unknown>
+  created_at: string | null
+}
+
+export interface AlertInsert {
+  id?: string
+  user_id: string
+  type: AlertType
+  title: string
+  message: string
+  priority?: AlertPriority
+  read?: boolean
+  data?: Record<string, unknown>
+  created_at?: string | null
+}

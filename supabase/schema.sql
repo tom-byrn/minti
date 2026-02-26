@@ -335,3 +335,41 @@ create policy "Users can delete own goals" on public.financial_goals
 
 -- Indexes for goals
 create index if not exists idx_financial_goals_user_id on public.financial_goals(user_id);
+
+-- ============================================================================
+-- SMART ALERTS
+-- ============================================================================
+
+create table if not exists public.alerts (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  type text not null check (type in (
+    'budget_warning', 'budget_exceeded',
+    'subscription_renewal', 'subscription_price_change',
+    'goal_at_risk', 'goal_achieved',
+    'unusual_spending', 'income_received',
+    'savings_rate_drop'
+  )),
+  title text not null,
+  message text not null,
+  priority text not null default 'medium' check (priority in ('low', 'medium', 'high')),
+  read boolean default false,
+  data jsonb default '{}',
+  created_at timestamptz default now()
+);
+
+-- RLS for alerts
+alter table public.alerts enable row level security;
+
+create policy "Users can view own alerts" on public.alerts
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own alerts" on public.alerts
+  for insert with check (auth.uid() = user_id);
+create policy "Users can update own alerts" on public.alerts
+  for update using (auth.uid() = user_id);
+create policy "Users can delete own alerts" on public.alerts
+  for delete using (auth.uid() = user_id);
+
+-- Indexes for alerts
+create index if not exists idx_alerts_user_id on public.alerts(user_id);
+create index if not exists idx_alerts_user_read on public.alerts(user_id, read);
