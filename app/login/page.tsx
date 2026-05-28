@@ -4,9 +4,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import Link from 'next/link'
 
-export default async function LoginPage() {
+type LoginPageProps = {
+  searchParams?: Promise<{
+    message?: string
+  }>
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams
   const supabase = await createClient()
 
   const {
@@ -59,6 +65,11 @@ export default async function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {params?.message ? (
+            <p className="mb-4 rounded-lg border border-border/50 bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
+              {params.message}
+            </p>
+          ) : null}
           <form className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-base">Email</Label>
@@ -90,12 +101,9 @@ export default async function LoginPage() {
               Sign In
             </Button>
           </form>
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-primary hover:text-primary/80 font-medium">
-              Sign up
-            </Link>
-          </div>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Access is limited to existing accounts.
+          </p>
         </CardContent>
       </Card>
     </div>
