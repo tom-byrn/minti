@@ -5,6 +5,31 @@
 create extension if not exists "uuid-ossp";
 
 -- ============================================================================
+-- AUTH SIGNUP LOCKDOWN
+-- ============================================================================
+
+-- Blocks all new Supabase Auth users. Existing users can still sign in.
+-- Drop this trigger temporarily if an administrator needs to create another user.
+create schema if not exists private;
+
+create or replace function private.block_new_auth_users()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  raise exception 'Account creation is disabled';
+end;
+$$;
+
+drop trigger if exists block_new_auth_users on auth.users;
+
+create trigger block_new_auth_users
+  before insert on auth.users
+  for each row
+  execute function private.block_new_auth_users();
+
+-- ============================================================================
 -- TABLES
 -- ============================================================================
 
@@ -167,11 +192,15 @@ create or replace function public.store_plaid_token(token text, token_name text)
 returns uuid
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   secret_id uuid;
 begin
+  if auth.uid() is null or token_name not like format('plaid_%s_%%', auth.uid()::text) then
+    raise exception 'Unauthorized';
+  end if;
+
   -- Insert the token into vault.secrets
   insert into vault.secrets (secret, name)
   values (token, token_name)
@@ -187,11 +216,20 @@ create or replace function public.get_plaid_token(p_secret_id uuid)
 returns text
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 declare
   token text;
 begin
+  if auth.uid() is null or not exists (
+    select 1
+    from public.plaid_items
+    where secret_id = p_secret_id
+      and user_id = auth.uid()
+  ) then
+    raise exception 'Unauthorized';
+  end if;
+
   select decrypted_secret into token
   from vault.decrypted_secrets
   where id = p_secret_id;
@@ -205,9 +243,26 @@ create or replace function public.delete_plaid_token(p_secret_id uuid)
 returns void
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 begin
+  if auth.uid() is null or not (
+    exists (
+      select 1
+      from public.plaid_items
+      where secret_id = p_secret_id
+        and user_id = auth.uid()
+    )
+    or exists (
+      select 1
+      from vault.secrets
+      where id = p_secret_id
+        and name like format('plaid_%s_%%', auth.uid()::text)
+    )
+  ) then
+    raise exception 'Unauthorized';
+  end if;
+
   delete from vault.secrets where id = p_secret_id;
 end;
 $$;
@@ -373,3 +428,27 @@ create policy "Users can delete own alerts" on public.alerts
 -- Indexes for alerts
 create index if not exists idx_alerts_user_id on public.alerts(user_id);
 create index if not exists idx_alerts_user_read on public.alerts(user_id, read);
+
+-- ============================================================================
+-- DATA API ACCESS HARDENING
+-- ============================================================================
+
+-- The app should not expose application tables or privileged RPCs to requests
+-- made only with the public anon key. Authenticated users still rely on RLS.
+revoke all on all tables in schema public from public, anon;
+grant select, insert, update, delete on all tables in schema public to authenticated;
+
+revoke execute on function public.store_plaid_token(text, text) from public, anon;
+revoke execute on function public.get_plaid_token(uuid) from public, anon;
+revoke execute on function public.delete_plaid_token(uuid) from public, anon;
+
+grant execute on function public.store_plaid_token(text, text) to authenticated;
+grant execute on function public.get_plaid_token(uuid) to authenticated;
+grant execute on function public.delete_plaid_token(uuid) to authenticated;
+
+do $$
+begin
+  if to_regprocedure('public.handle_new_user()') is not null then
+    execute 'revoke execute on function public.handle_new_user() from public, anon, authenticated';
+  end if;
+end $$;
