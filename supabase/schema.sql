@@ -201,10 +201,13 @@ begin
     raise exception 'Unauthorized';
   end if;
 
-  -- Insert the token into vault.secrets
-  insert into vault.secrets (secret, name)
-  values (token, token_name)
-  returning id into secret_id;
+  -- Use vault.create_secret() rather than inserting into vault.secrets directly.
+  -- A direct insert fails with "permission denied for function
+  -- _crypto_aead_det_noncegen" because postgres (this function's owner under
+  -- security definer) lacks execute on that pgsodium crypto function.
+  -- create_secret() is owned by supabase_admin and granted to postgres, so it
+  -- runs the encryption with the right privileges.
+  select vault.create_secret(token, token_name) into secret_id;
 
   return secret_id;
 end;
